@@ -887,7 +887,7 @@ export default function CreateSequenceModule() {
               <CheckCircle className="h-5 w-5" />
               Criterios de Evaluación
             </CardTitle>
-            <CardDescription>Define los criterios y porcentajes de evaluación (deben sumar 100%)</CardDescription>
+            <CardDescription>Los criterios de evaluación deben sumar 100%, considerando que en correspondencia al modelo educativo el examen escrito debe de valer maximo 40%</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {errors.porcentajes && (
@@ -1095,7 +1095,7 @@ export default function CreateSequenceModule() {
               <div className="space-y-4">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
-                  Actividades
+                  Actividades de aprendizaje
                 </h4>
                 {unidad.actividades.map((actividad, actividadIndex) => (
                   <div
