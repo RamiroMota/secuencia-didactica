@@ -48,6 +48,14 @@ interface Unidad {
   instrumento: string
 }
 
+interface CriterioBimestre {
+  nombre: string
+  criterios: Array<{
+    criterio: string
+    porcentaje: string
+  }>
+}
+
 interface FormData {
   // Información General
   programa: string
@@ -72,6 +80,9 @@ interface FormData {
     criterio: string
     porcentaje: string
   }>
+
+  // Criterios por Bimestre (nuevo)
+  criterios_bimestre: CriterioBimestre[]
 
   // Contenido del Curso
   contextualizacion: string
@@ -127,7 +138,15 @@ const initialFormData: FormData = {
   criterios: [
     { criterio: "", porcentaje: "" },
     { criterio: "", porcentaje: "" },
-    { criterio: "", porcentaje: "" },
+  ],
+  criterios_bimestre: [
+    {
+      nombre: "1er Bimestre",
+      criterios: [
+        { criterio: "", porcentaje: "" },
+        { criterio: "", porcentaje: "" },
+      ],
+    },
   ],
   contextualizacion: "",
   unidades: [{ ...initialUnidad }],
@@ -194,6 +213,7 @@ export default function CreateSequenceModule() {
   const [isMounted, setIsMounted] = useState(false)
   const [hasStoredData, setHasStoredData] = useState(false)
   const [storageInfo, setStorageInfo] = useState<{ savedAt: Date; expiresAt: Date } | null>(null)
+  const [criteriosMode, setCriteriosMode] = useState<"generales" | "bimestre">("generales")
 
   // Función para guardar datos en localStorage
   const saveToStorage = useCallback((data: FormData) => {
@@ -327,7 +347,7 @@ export default function CreateSequenceModule() {
   }
 
   const addCriterio = () => {
-    if (formData.criterios.length < 6) {
+    if (formData.criterios.length < 4) {
       setFormData((prev) => ({
         ...prev,
         criterios: [...prev.criterios, { criterio: "", porcentaje: "" }],
@@ -336,9 +356,75 @@ export default function CreateSequenceModule() {
   }
 
   const removeCriterio = (index: number) => {
-    if (formData.criterios.length > 3) {
+    if (formData.criterios.length > 2) {
       const newCriterios = formData.criterios.filter((_, i) => i !== index)
       setFormData((prev) => ({ ...prev, criterios: newCriterios }))
+    }
+  }
+
+  const handleCriterioBimestreChange = (
+    bimestreIndex: number,
+    criterioIndex: number,
+    field: "criterio" | "porcentaje",
+    value: string,
+  ) => {
+    const newCriteriosBimestre = [...formData.criterios_bimestre]
+    newCriteriosBimestre[bimestreIndex].criterios[criterioIndex][field] = value
+    setFormData((prev) => ({ ...prev, criterios_bimestre: newCriteriosBimestre }))
+  }
+
+  const handleNombreBimestreChange = (bimestreIndex: number, value: string) => {
+    const newCriteriosBimestre = [...formData.criterios_bimestre]
+    newCriteriosBimestre[bimestreIndex].nombre = value
+    setFormData((prev) => ({ ...prev, criterios_bimestre: newCriteriosBimestre }))
+  }
+
+  const addCriterioBimestre = (bimestreIndex: number) => {
+    const newCriteriosBimestre = [...formData.criterios_bimestre]
+    if (newCriteriosBimestre[bimestreIndex].criterios.length < 4) {
+      newCriteriosBimestre[bimestreIndex].criterios.push({ criterio: "", porcentaje: "" })
+      setFormData((prev) => ({ ...prev, criterios_bimestre: newCriteriosBimestre }))
+    }
+  }
+
+  const removeCriterioBimestre = (bimestreIndex: number, criterioIndex: number) => {
+    const newCriteriosBimestre = [...formData.criterios_bimestre]
+    if (newCriteriosBimestre[bimestreIndex].criterios.length > 2) {
+      newCriteriosBimestre[bimestreIndex].criterios = newCriteriosBimestre[bimestreIndex].criterios.filter(
+        (_, i) => i !== criterioIndex,
+      )
+      setFormData((prev) => ({ ...prev, criterios_bimestre: newCriteriosBimestre }))
+    }
+  }
+
+  const addBloqueBimestre = () => {
+    if (formData.criterios_bimestre.length < 3) {
+      // Cambiar a modo bimestre al agregar el primer bimestre
+      setCriteriosMode("bimestre")
+
+      const nuevoNumero = formData.criterios_bimestre.length + 1
+      const nombreBimestre = nuevoNumero === 2 ? "2do Bimestre" : "3er Bimestre"
+
+      setFormData((prev) => ({
+        ...prev,
+        criterios_bimestre: [
+          ...prev.criterios_bimestre,
+          {
+            nombre: nombreBimestre,
+            criterios: [
+              { criterio: "", porcentaje: "" },
+              { criterio: "", porcentaje: "" },
+            ],
+          },
+        ],
+      }))
+    }
+  }
+
+  const removeBloqueBimestre = (bimestreIndex: number) => {
+    if (formData.criterios_bimestre.length > 1) {
+      const newCriteriosBimestre = formData.criterios_bimestre.filter((_, i) => i !== bimestreIndex)
+      setFormData((prev) => ({ ...prev, criterios_bimestre: newCriteriosBimestre }))
     }
   }
 
@@ -511,12 +597,30 @@ export default function CreateSequenceModule() {
     }
   }
 
+  const volverACriteriosGenerales = () => {
+    setCriteriosMode("generales")
+    // Resetear criterios por bimestre al estado inicial
+    setFormData((prev) => ({
+      ...prev,
+      criterios_bimestre: [
+        {
+          nombre: "1er Bimestre",
+          criterios: [
+            { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
+          ],
+        },
+      ],
+    }))
+  }
+
   const handleReset = () => {
     setFormData(initialFormData)
     setErrors({})
     setSubmitSuccess(false)
     setQrNombreFirma("")
     setQrFirmaAcademia("")
+    setCriteriosMode("generales") // Resetear el modo
     clearStorage() // Limpiar datos guardados al resetear
   }
 
@@ -569,7 +673,7 @@ export default function CreateSequenceModule() {
   }
 
   const addActividadFinal = () => {
-    if (formData.actividades_finales.length < 5) {
+    if (formData.actividades_finales.length < 3) {
       setFormData((prev) => ({
         ...prev,
         actividades_finales: [
@@ -889,72 +993,239 @@ export default function CreateSequenceModule() {
             </CardTitle>
             <CardDescription>Los criterios de evaluación deben sumar 100%, considerando que en correspondencia al modelo educativo el examen escrito debe de valer maximo 40%</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {errors.porcentajes && (
-              <Alert variant="destructive">
-                <AlertDescription>{errors.porcentajes}</AlertDescription>
-              </Alert>
-            )}
-
-            {formData.criterios.map((criterio, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-gray-50">
-                <div className="space-y-2">
-                  <Label htmlFor={`criterio-${index}`}>Criterio {index + 1}</Label>
-                  <Input
-                    id={`criterio-${index}`}
-                    value={criterio.criterio}
-                    onChange={(e) => handleCriterioChange(index, "criterio", e.target.value)}
-                    placeholder={`Ej: ${index === 0 ? "Evaluación continua" : index === 1 ? "Examen final" : "Participación"}`}
-                  />
+          <CardContent className="space-y-6">
+            {criteriosMode === "generales" ? (
+              // Criterios Generales
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-base flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Criterios Generales
+                  </h4>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addBloqueBimestre}
+                    className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Cambiar a Criterios por Bimestre
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor={`porcentaje-${index}`}>Porcentaje {index + 1} (%)</Label>
-                    {formData.criterios.length > 3 && (
+
+                {errors.porcentajes && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{errors.porcentajes}</AlertDescription>
+                  </Alert>
+                )}
+
+                {formData.criterios.map((criterio, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-gray-50">
+                    <div className="space-y-2">
+                      <Label htmlFor={`criterio-${index}`}>Criterio {index + 1}</Label>
+                      <Input
+                        id={`criterio-${index}`}
+                        value={criterio.criterio}
+                        onChange={(e) => handleCriterioChange(index, "criterio", e.target.value)}
+                        placeholder={`Ej: ${index === 0 ? "Evaluación continua" : "Examen final"}`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor={`porcentaje-${index}`}>Porcentaje {index + 1} (%)</Label>
+                        {formData.criterios.length > 2 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeCriterio(index)}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                      <Input
+                        id={`porcentaje-${index}`}
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={criterio.porcentaje}
+                        onChange={(e) => handleCriterioChange(index, "porcentaje", e.target.value)}
+                        placeholder={index === 0 ? "50" : "50"}
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex items-center justify-between pt-4">
+                  <div className="text-sm text-gray-600">
+                    Total:{" "}
+                    {formData.criterios.reduce((sum, criterio) => sum + (Number.parseInt(criterio.porcentaje) || 0), 0)}
+                    %
+                  </div>
+
+                  {formData.criterios.length < 4 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addCriterio}
+                      className="flex items-center gap-2 bg-transparent"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Criterio
+                    </Button>
+                  )}
+                </div>
+
+                <div className="text-xs text-gray-500 mt-2">Mínimo 2 criterios, máximo 4 criterios</div>
+              </div>
+            ) : (
+              // Criterios por Bimestre
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-base flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    Criterios por Bimestre
+                  </h4>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={volverACriteriosGenerales}
+                      className="flex items-center gap-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+                    >
+                      <Target className="h-4 w-4" />
+                      Volver a Criterios Generales
+                    </Button>
+                    {formData.criterios_bimestre.length < 3 && (
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
-                        onClick={() => removeCriterio(index)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={addBloqueBimestre}
+                        className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                       >
-                        <Minus className="h-4 w-4" />
+                        <Plus className="h-4 w-4" />
+                        Agregar Bimestre
                       </Button>
                     )}
                   </div>
-                  <Input
-                    id={`porcentaje-${index}`}
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={criterio.porcentaje}
-                    onChange={(e) => handleCriterioChange(index, "porcentaje", e.target.value)}
-                    placeholder={index === 0 ? "30" : index === 1 ? "40" : "30"}
-                  />
+                </div>
+
+                {formData.criterios_bimestre.map((bimestre, bimestreIndex) => (
+                  <Card key={bimestreIndex} className="border-l-4 border-l-green-500">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-2 flex-1">
+                          <Label htmlFor={`nombre-bimestre-${bimestreIndex}`}>Nombre del Bimestre</Label>
+                          <Input
+                            id={`nombre-bimestre-${bimestreIndex}`}
+                            value={bimestre.nombre}
+                            onChange={(e) => handleNombreBimestreChange(bimestreIndex, e.target.value)}
+                            placeholder={`${bimestreIndex + 1}er Bimestre`}
+                            className="max-w-xs"
+                          />
+                        </div>
+                        {formData.criterios_bimestre.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeBloqueBimestre(bimestreIndex)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Minus className="h-4 w-4 mr-1" />
+                            Eliminar Bimestre
+                          </Button>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {bimestre.criterios.map((criterio, criterioIndex) => (
+                        <div
+                          key={criterioIndex}
+                          className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-green-50"
+                        >
+                          <div className="space-y-2">
+                            <Label htmlFor={`criterio-bimestre-${bimestreIndex}-${criterioIndex}`}>
+                              Criterio {criterioIndex + 1}
+                            </Label>
+                            <Input
+                              id={`criterio-bimestre-${bimestreIndex}-${criterioIndex}`}
+                              value={criterio.criterio}
+                              onChange={(e) =>
+                                handleCriterioBimestreChange(bimestreIndex, criterioIndex, "criterio", e.target.value)
+                              }
+                              placeholder={`Ej: ${criterioIndex === 0 ? "Tareas" : "Examen parcial"}`}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor={`porcentaje-bimestre-${bimestreIndex}-${criterioIndex}`}>
+                                Porcentaje {criterioIndex + 1} (%)
+                              </Label>
+                              {bimestre.criterios.length > 2 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeCriterioBimestre(bimestreIndex, criterioIndex)}
+                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                            <Input
+                              id={`porcentaje-bimestre-${bimestreIndex}-${criterioIndex}`}
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={criterio.porcentaje}
+                              onChange={(e) =>
+                                handleCriterioBimestreChange(bimestreIndex, criterioIndex, "porcentaje", e.target.value)
+                              }
+                              placeholder={criterioIndex === 0 ? "50" : "50"}
+                            />
+                          </div>
+                        </div>
+                      ))}
+
+                      <div className="flex items-center justify-between pt-4">
+                        <div className="text-sm text-gray-600">
+                          Total {bimestre.nombre}:{" "}
+                          {bimestre.criterios.reduce(
+                            (sum, criterio) => sum + (Number.parseInt(criterio.porcentaje) || 0),
+                            0,
+                          )}
+                          %
+                        </div>
+
+                        {bimestre.criterios.length < 4 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => addCriterioBimestre(bimestreIndex)}
+                            className="flex items-center gap-2 bg-transparent"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Agregar Criterio
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="text-xs text-gray-500 mt-2">
+                        Mínimo 2 criterios, máximo 4 criterios por bimestre
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                <div className="text-xs text-gray-500 text-center">
+                  Mínimo 1 bimestre, máximo 3 bimestres. Actualmente: {formData.criterios_bimestre.length} bimestre(s)
                 </div>
               </div>
-            ))}
-
-            <div className="flex items-center justify-between pt-4">
-              <div className="text-sm text-gray-600">
-                Total:{" "}
-                {formData.criterios.reduce((sum, criterio) => sum + (Number.parseInt(criterio.porcentaje) || 0), 0)}%
-              </div>
-
-              {formData.criterios.length < 6 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addCriterio}
-                  className="flex items-center gap-2 bg-transparent"
-                >
-                  <Plus className="h-4 w-4" />
-                  Agregar Criterio
-                </Button>
-              )}
-            </div>
-
-            <div className="text-xs text-gray-500 mt-2">Mínimo 3 criterios, máximo 6 criterios</div>
+            )}
           </CardContent>
         </Card>
 
@@ -1095,7 +1366,7 @@ export default function CreateSequenceModule() {
               <div className="space-y-4">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
-                  Actividades de aprendizaje
+                  Actividades
                 </h4>
                 {unidad.actividades.map((actividad, actividadIndex) => (
                   <div
@@ -1287,7 +1558,7 @@ export default function CreateSequenceModule() {
               <div className="text-sm text-gray-600">
                 Total de actividades finales: {formData.actividades_finales.length}
               </div>
-              {formData.actividades_finales.length < 5 && (
+              {formData.actividades_finales.length < 3 && (
                 <Button
                   type="button"
                   variant="outline"
@@ -1299,7 +1570,7 @@ export default function CreateSequenceModule() {
                 </Button>
               )}
             </div>
-            <div className="text-xs text-gray-500 mt-2">Mínimo 1 actividad final, máximo 5 actividades finales</div>
+            <div className="text-xs text-gray-500 mt-2">Mínimo 1 actividad final, máximo 3 actividades finales</div>
           </CardContent>
         </Card>
 

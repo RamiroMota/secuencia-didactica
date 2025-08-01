@@ -27,11 +27,19 @@ interface Unidad {
   instrumento: string
 }
 
+interface CriterioBimestre {
+  nombre: string
+  criterios: Array<{
+    criterio: string
+    porcentaje: string
+  }>
+}
+
 interface FormData {
   programa: string
   ciclo: string
   titulo: string
-  semestre: string // Agregar campo semestre
+  semestre: string
   nombre: string
   perfil: string
   posgrado: string
@@ -44,7 +52,8 @@ interface FormData {
     criterio: string
     porcentaje: string
   }>
-  contextualizacion: string // Solo mantener contextualizacion
+  criterios_bimestre: CriterioBimestre[]
+  contextualizacion: string
   unidades: Unidad[]
   actividades_finales: Array<{
     actividad_final: string
@@ -52,6 +61,7 @@ interface FormData {
     instrumentos_finales: string
   }>
   nombre_firma: string
+  correo_institucional: string
   firma_academia: string
   qr_nombre_firma?: string
 }
@@ -67,7 +77,31 @@ const base64ToBuffer = (base64: string): Buffer => {
   return Buffer.from(base64Data, "base64")
 }
 
+// Función para determinar si usar criterios generales o por bimestre
+const shouldUseCriteriosBimestre = (formData: FormData): boolean => {
+  // Si hay más de un bimestre, usar criterios por bimestre
+  if (formData.criterios_bimestre.length > 1) {
+    return true
+  }
+
+  // Si el primer bimestre tiene datos significativos, usar criterios por bimestre
+  const primerBimestre = formData.criterios_bimestre[0]
+  if (primerBimestre && primerBimestre.criterios.some((c) => c.criterio.trim() || c.porcentaje.trim())) {
+    return true
+  }
+
+  // Si los criterios generales tienen datos, usar criterios generales
+  if (formData.criterios.some((c) => c.criterio.trim() || c.porcentaje.trim())) {
+    return false
+  }
+
+  // Por defecto, usar criterios generales
+  return false
+}
+
 export const generateDocx = async (formData: FormData): Promise<Document> => {
+  const usarCriteriosBimestre = shouldUseCriteriosBimestre(formData)
+
   const doc = new Document({
     styles: {
       default: {
@@ -525,7 +559,7 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             spacing: { after: 400 },
           }),
 
-          // Criterios de Evaluación
+          // Criterios de Evaluación - Dinámico según el modo
           new Paragraph({
             children: [
               new TextRun({
@@ -538,92 +572,198 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             spacing: { before: 600, after: 300 },
           }),
 
-          new Table({
-            width: {
-              size: 100,
-              type: WidthType.PERCENTAGE,
-            },
-            borders: {
-              top: { style: BorderStyle.SINGLE, size: 1 },
-              bottom: { style: BorderStyle.SINGLE, size: 1 },
-              left: { style: BorderStyle.SINGLE, size: 1 },
-              right: { style: BorderStyle.SINGLE, size: 1 },
-              insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
-              insideVertical: { style: BorderStyle.SINGLE, size: 1 },
-            },
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Criterio",
-                            bold: true,
-                            size: SUBTITLE_SIZE,
-                            font: FONT_FAMILY,
-                          }),
-                        ],
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                    width: { size: 70, type: WidthType.PERCENTAGE },
-                  }),
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Porcentaje",
-                            bold: true,
-                            size: SUBTITLE_SIZE,
-                            font: FONT_FAMILY,
-                          }),
-                        ],
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                    width: { size: 30, type: WidthType.PERCENTAGE },
-                  }),
-                ],
-              }),
-              ...formData.criterios.map(
-                (criterio) =>
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        children: [
-                          new Paragraph({
-                            children: [
-                              new TextRun({
-                                text: criterio.criterio || "No especificado",
-                                size: BODY_SIZE,
-                                font: FONT_FAMILY,
-                              }),
-                            ],
-                          }),
-                        ],
-                      }),
-                      new TableCell({
-                        children: [
-                          new Paragraph({
-                            children: [
-                              new TextRun({
-                                text: `${criterio.porcentaje}%`,
-                                size: BODY_SIZE,
-                                font: FONT_FAMILY,
-                              }),
-                            ],
-                            alignment: AlignmentType.CENTER,
-                          }),
-                        ],
-                      }),
-                    ],
-                  }),
-              ),
-            ],
-          }),
+          // Generar criterios según el modo seleccionado
+          ...(usarCriteriosBimestre
+            ? // Criterios por Bimestre
+              formData.criterios_bimestre.flatMap((bimestre, bimestreIndex) => [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: bimestre.nombre || `${bimestreIndex + 1}er Bimestre`,
+                      bold: true,
+                      size: SUBTITLE_SIZE,
+                      font: FONT_FAMILY,
+                    }),
+                  ],
+                  spacing: { before: bimestreIndex > 0 ? 400 : 0, after: 200 },
+                }),
+
+                new Table({
+                  width: {
+                    size: 100,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                    insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
+                    insideVertical: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                  rows: [
+                    new TableRow({
+                      children: [
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "Criterio",
+                                  bold: true,
+                                  size: SUBTITLE_SIZE,
+                                  font: FONT_FAMILY,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          width: { size: 70, type: WidthType.PERCENTAGE },
+                        }),
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "Porcentaje",
+                                  bold: true,
+                                  size: SUBTITLE_SIZE,
+                                  font: FONT_FAMILY,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          width: { size: 30, type: WidthType.PERCENTAGE },
+                        }),
+                      ],
+                    }),
+                    ...bimestre.criterios.map(
+                      (criterio) =>
+                        new TableRow({
+                          children: [
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: criterio.criterio || "No especificado",
+                                      size: BODY_SIZE,
+                                      font: FONT_FAMILY,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: `${criterio.porcentaje}%`,
+                                      size: BODY_SIZE,
+                                      font: FONT_FAMILY,
+                                    }),
+                                  ],
+                                  alignment: AlignmentType.CENTER,
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                    ),
+                  ],
+                }),
+              ])
+            : // Criterios Generales
+              [
+                new Table({
+                  width: {
+                    size: 100,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                    insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
+                    insideVertical: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                  rows: [
+                    new TableRow({
+                      children: [
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "Criterio",
+                                  bold: true,
+                                  size: SUBTITLE_SIZE,
+                                  font: FONT_FAMILY,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          width: { size: 70, type: WidthType.PERCENTAGE },
+                        }),
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "Porcentaje",
+                                  bold: true,
+                                  size: SUBTITLE_SIZE,
+                                  font: FONT_FAMILY,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          width: { size: 30, type: WidthType.PERCENTAGE },
+                        }),
+                      ],
+                    }),
+                    ...formData.criterios.map(
+                      (criterio) =>
+                        new TableRow({
+                          children: [
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: criterio.criterio || "No especificado",
+                                      size: BODY_SIZE,
+                                      font: FONT_FAMILY,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: `${criterio.porcentaje}%`,
+                                      size: BODY_SIZE,
+                                      font: FONT_FAMILY,
+                                    }),
+                                  ],
+                                  alignment: AlignmentType.CENTER,
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                    ),
+                  ],
+                }),
+              ]),
 
           // Contenido del Curso
           new Paragraph({
@@ -759,7 +899,7 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "Actividades de aprendizaje:",
+                  text: "Actividades:",
                   bold: true,
                   size: SUBTITLE_SIZE,
                   font: FONT_FAMILY,
