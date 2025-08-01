@@ -1622,7 +1622,8 @@ export default function CreateSequenceModule() {
                 />
                 {errors.correo_institucional && <p className="text-sm text-red-500">{errors.correo_institucional}</p>}
                 <p className="text-xs text-gray-500">
-                  Este correo se utilizará para notificaciones sobre el estado de la secuencia didáctica
+                  Este correo se utilizará para notificaciones sobre el estado de la secuencia didáctica y para recibir
+                  las respectivas observaciones de su secuencia didactica.
                 </p>
               </div>
             </div>
