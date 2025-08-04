@@ -157,21 +157,21 @@ const initialFormData: FormData = {
 }
 
 const programas = [
-  "LIC. EN ARQUITECTURA",
-  "ING. EN ANIMACIÓN Y DISEÑO DE CONTENIDOS DIGITALES",
-  "LIC. ADMINISTRACIÓN DE EMPRESAS",
-  "LIC. EN CONTADURÍA PUBLICA",
-  "LIC. EN NUTRICIÓN",
-  "LIC. EN MERCADOTECNIA Y COMUNICACIÓN GRÁFICA",
-  "LIC. EN PSICOLOGÍA",
-  "LIC. ENSEÑANZA DEL IDIOMA INGLÉS",
-  "LIC. EN DERECHO",
-  "LIC. EN EDUCACIÓN FÍSICA Y DEPORTIVA",
-  "LIC. EN ENFERMERÍA",
-  "LIC. EN PEDAGOGÍA",
-  "LIC. QUÍMICO FARMACOBIOLOGO",
-  "LIC. CIRUJANO ODONTOLOGO",
-  "LIC. MEDICO CIRUJANO",
+  "Licenciatura En Arquitectura",
+  "Ingeniería En Animación Y Diseño De Contenidos Digitales",
+  " Licenciatura En Administración De Empresas",
+  " Licenciatura En Contaduría Pública",
+  " Licenciatura En Nutrición",
+  " Licenciatura En Mercadotecnia Y Comunicación Gráfica",
+  " Licenciatura En Psicología",
+  " Licenciatura En Enseñanza Del Idioma Inglés",
+  " Licenciatura En Derecho",
+  " Licenciatura En Educación Física Y Deportiva",
+  " Licenciatura En Enfermería",
+  " Licenciatura En Pedagogía",
+  " Licenciatura En Químico Farmacobiólogo",
+  " Licenciatura En Cirujano Odontólogo",
+  " Licenciatura En Médico Cirujano",
 ]
 
 const ciclos = [
