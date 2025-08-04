@@ -471,12 +471,13 @@ export default function CreateSequenceModule() {
 
   const addUnidad = () => {
     if (formData.unidades.length < 6) {
+      const newUnidad = JSON.parse(JSON.stringify(initialUnidad));
       setFormData((prev) => ({
         ...prev,
-        unidades: [...prev.unidades, { ...initialUnidad }],
-      }))
+        unidades: [...prev.unidades, newUnidad],
+      }));
     }
-  }
+  };
 
   const removeUnidad = (index: number) => {
     if (formData.unidades.length > 1) {
