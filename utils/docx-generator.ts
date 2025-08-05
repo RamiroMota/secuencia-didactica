@@ -899,7 +899,7 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "Actividades:",
+                  text: "Actividades de Aprendizaje:",
                   bold: true,
                   size: SUBTITLE_SIZE,
                   font: FONT_FAMILY,
