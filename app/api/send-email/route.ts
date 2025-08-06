@@ -28,8 +28,7 @@ export async function POST(request: NextRequest) {
     // Configurar el contenido del email
     const mailOptions = {
       from: "ramiro.mota@upgch.mx", // Reemplazar con el email desde el cual se enviará
-      to: "gezer.cruz@upgch.mx",
-      cc: "fernando.arreola@upgch.mx",
+      to: "ramiro.mota.tb@gmail.com",
       subject: `Secuencia Didáctica para Revisión - ${asignatura}`,
       html: `
            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

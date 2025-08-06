@@ -31,6 +31,7 @@ import {
 import QRCode from "qrcode"
 import { generateDocx } from "./utils/docx-generator"
 import { Packer } from "docx"
+import LoadingModal from "@/components/ui/loading-modal"
 
 interface Unidad {
   tema: string
@@ -206,6 +207,7 @@ const STORAGE_EXPIRY_MS = STORAGE_EXPIRY_HOURS * 60 * 60 * 1000 // 1 hora en mil
 export default function CreateSequenceModule() {
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [showErrors, setShowErrors] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [qrNombreFirma, setQrNombreFirma] = useState<string>("")
   const [qrFirmaAcademia, setQrFirmaAcademia] = useState<string>("")
@@ -521,12 +523,24 @@ export default function CreateSequenceModule() {
     }
 
     // Validar porcentajes
-    const totalPorcentaje = formData.criterios.reduce((sum, criterio) => {
-      return sum + (Number.parseInt(criterio.porcentaje) || 0)
-    }, 0)
+    if (criteriosMode === "generales") {
+      const totalPorcentaje = formData.criterios.reduce((sum, criterio) => {
+        return sum + (Number.parseInt(criterio.porcentaje) || 0)
+      }, 0)
 
-    if (totalPorcentaje !== 100) {
-      newErrors.porcentajes = "Los porcentajes deben sumar 100%"
+      if (totalPorcentaje !== 100) {
+        newErrors.porcentajes = "Los porcentajes de los criterios generales deben sumar 100%"
+      }
+    } else {
+      formData.criterios_bimestre.forEach((bimestre, index) => {
+        const totalPorcentajeBimestre = bimestre.criterios.reduce((sum, criterio) => {
+          return sum + (Number.parseInt(criterio.porcentaje) || 0)
+        }, 0)
+
+        if (totalPorcentajeBimestre !== 100) {
+          newErrors[`porcentajes_bimestre_${index}`] = `Los porcentajes para ${bimestre.nombre} deben sumar 100%`
+        }
+      })
     }
 
     setErrors(newErrors)
@@ -541,8 +555,12 @@ export default function CreateSequenceModule() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!validateForm()) return
+    if (!validateForm()) {
+      setShowErrors(true)
+      return
+    }
 
+    setShowErrors(false)
     setIsSubmitting(true)
     try {
       // Generar documento DOCX
@@ -788,6 +806,7 @@ export default function CreateSequenceModule() {
         </Alert>
       )}
 
+      {isSubmitting && <LoadingModal />}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Información General */}
         <Card className="shadow-2xl">
@@ -1142,6 +1161,11 @@ export default function CreateSequenceModule() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                      {showErrors && errors[`porcentajes_bimestre_${bimestreIndex}`] && (
+                        <Alert variant="destructive" className="mb-4">
+                          <AlertDescription>{errors[`porcentajes_bimestre_${bimestreIndex}`]}</AlertDescription>
+                        </Alert>
+                      )}
                       {bimestre.criterios.map((criterio, criterioIndex) => (
                         <div
                           key={criterioIndex}
@@ -1632,6 +1656,18 @@ export default function CreateSequenceModule() {
         </Card>
 
         {/* Botones de Acción */}
+        {showErrors && Object.keys(errors).length > 0 && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>
+              <p className="font-bold">Por favor, corrige los siguientes errores:</p>
+              <ul className="list-disc pl-5">
+                {Object.values(errors).map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="flex flex-col sm:flex-row gap-4 pt-6">
           <Button type="submit" disabled={isSubmitting} className="flex-1 sm:flex-none sm:min-w-[200px]">
             <Save className="h-4 w-4 mr-2" />
