@@ -160,10 +160,7 @@ const initialFormData: FormData = {
 const programas = [
   "Licenciatura En Arquitectura",
   "Ingeniería En Animación Y Diseño De Contenidos Digitales",
-  " Licenciatura En Administración De Empresas",
-  " Licenciatura En Contaduría Pública",
   " Licenciatura En Nutrición",
-  " Licenciatura En Mercadotecnia Y Comunicación Gráfica",
   " Licenciatura En Psicología",
   " Licenciatura En Enseñanza Del Idioma Inglés",
   " Licenciatura En Derecho",
@@ -177,6 +174,8 @@ const programas = [
   " Licenciatura En Administración Financiera y Sistemas",
   " Licenciatura En Administración de Empresas Globales",
   " Licenciatura En Mercadotecnia y comunicación gráfica",
+  " Licenciatura En Administración De Empresas",
+  " Licenciatura En Contaduría Pública",
 ]
 
 const ciclos = [
