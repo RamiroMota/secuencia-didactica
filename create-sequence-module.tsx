@@ -176,6 +176,7 @@ const programas = [
   " Licenciatura En Mercadotecnia y comunicación gráfica",
   " Licenciatura En Administración De Empresas",
   " Licenciatura En Contaduría Pública",
+  " Licenciatura En Contaduría Pública mixta",
 ]
 
 const ciclos = [
