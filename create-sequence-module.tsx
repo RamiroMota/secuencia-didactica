@@ -160,23 +160,23 @@ const initialFormData: FormData = {
 const programas = [
   "Licenciatura En Arquitectura",
   "Ingeniería En Animación Y Diseño De Contenidos Digitales",
-  " Licenciatura En Nutrición",
-  " Licenciatura En Psicología",
-  " Licenciatura En Enseñanza Del Idioma Inglés",
-  " Licenciatura En Derecho",
-  " Licenciatura En Educación Física Y Deportiva",
-  " Licenciatura En Enfermería",
-  " Licenciatura En Pedagogía",
-  " Licenciatura En Químico Farmacobiólogo",
-  " Licenciatura En Cirujano Odontólogo",
-  " Licenciatura En Médico Cirujano",
-  " Licenciatura En Administración de Empresas Mixta",
-  " Licenciatura En Administración Financiera y Sistemas",
-  " Licenciatura En Administración de Empresas Globales",
-  " Licenciatura En Mercadotecnia y comunicación gráfica",
-  " Licenciatura En Administración De Empresas",
-  " Licenciatura En Contaduría Pública",
-  " Licenciatura En Contaduría Pública mixta",
+  "Licenciatura En Nutrición",
+  "Licenciatura En Psicología",
+  "Licenciatura En Enseñanza Del Idioma Inglés",
+  "Licenciatura En Derecho",
+  "Licenciatura En Educación Física Y Deportiva",
+  "Licenciatura En Enfermería",
+  "Licenciatura En Pedagogía",
+  "Licenciatura En Químico Farmacobiólogo",
+  "Licenciatura En Cirujano Odontólogo",
+  "Licenciatura En Médico Cirujano",
+  "Licenciatura En Administración de Empresas Mixta",
+  "Licenciatura En Administración Financiera y Sistemas",
+  "Licenciatura En Administración de Empresas Globales",
+  "Licenciatura En Mercadotecnia y comunicación gráfica",
+  "Licenciatura En Administración De Empresas",
+  "Licenciatura En Contaduría Pública",
+  "Licenciatura En Contaduría Pública mixta",
 ]
 
 const ciclos = [
@@ -729,7 +729,8 @@ export default function CreateSequenceModule() {
     <div className="space-y-6 max-w-6xl mx-auto p-6">
       <div>
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Crear Secuencia Didáctica</h2>
-        <p className="text-gray-600 mt-2">Completa el formulario para crear una nueva secuencia didáctica</p>
+        <p className="text-gray-600 mt-2">Completa el formato para crear una nueva secuencia didáctica</p>
+        <p className="text-blue-600 font-bold mt-2">Nota: Escriba utilizando mayúsculas y minúsculas de manera correcta en todo el formato.</p>
       </div>
 
       {/* Alerta de datos guardados */}
@@ -1651,8 +1652,7 @@ export default function CreateSequenceModule() {
                 />
                 {errors.correo_institucional && <p className="text-sm text-red-500">{errors.correo_institucional}</p>}
                 <p className="text-xs text-gray-500">
-                  Este correo se utilizará para notificaciones sobre el estado de la secuencia didáctica y para recibir
-                  las respectivas observaciones de su secuencia didactica.
+                  Este correo se utilizará para notificaciones sobre el estado de la secuencia didáctica y para recibir las respectivas observaciones de su secuencia didactica.
                 </p>
               </div>
             </div>
@@ -1671,8 +1671,11 @@ export default function CreateSequenceModule() {
               </ul>
             </AlertDescription>
           </Alert>
-        )}
+        )}<p className="text-sm font-bold text-blue-600">
+            Nota: Al dar clic en Guardar y Enviar Secuencia, se descargará automáticamente un archivo .docx como evidencia y la secuencia didáctica será enviada automaticamente a la Dirección Academica para su revisión.
+          </p>
         <div className="flex flex-col sm:flex-row gap-4 pt-6">
+          
           <Button type="submit" disabled={isSubmitting} className="flex-1 sm:flex-none sm:min-w-[200px]">
             <Save className="h-4 w-4 mr-2" />
             {isSubmitting ? "Generando y enviando..." : "Guardar y Enviar Secuencia"}
