@@ -173,6 +173,10 @@ const programas = [
   " Licenciatura En Químico Farmacobiólogo",
   " Licenciatura En Cirujano Odontólogo",
   " Licenciatura En Médico Cirujano",
+  " Licenciatura En Administración de Empresas Mixta",
+  " Licenciatura En Administración Financiera y Sistemas",
+  " Licenciatura En Administración de Empresas Globales",
+  " Licenciatura En Mercadotecnia y comunicación gráfica",
 ]
 
 const ciclos = [
