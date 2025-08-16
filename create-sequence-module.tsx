@@ -162,6 +162,7 @@ const programas = [
   "Ingeniería En Animación Y Diseño De Contenidos Digitales",
   "Licenciatura En Nutrición",
   "Licenciatura En Psicología",
+  "Licenciatura En Psicología Clínica",
   "Licenciatura En Enseñanza Del Idioma Inglés",
   "Licenciatura En Derecho",
   "Licenciatura En Educación Física Y Deportiva",
