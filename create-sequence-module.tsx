@@ -404,36 +404,35 @@ export default function CreateSequenceModule() {
     }
   }
 
-  const addBloqueBimestre = () => {
-    if (formData.criterios_bimestre.length < 3) {
-      // Cambiar a modo bimestre al agregar el primer bimestre
-      setCriteriosMode("bimestre")
-
-      const nuevoNumero = formData.criterios_bimestre.length + 1
-      const nombreBimestre = nuevoNumero === 2 ? "2do Bimestre" : "3er Bimestre"
-
-      setFormData((prev) => ({
-        ...prev,
-        criterios_bimestre: [
-          ...prev.criterios_bimestre,
-          {
-            nombre: nombreBimestre,
-            criterios: [
-              { criterio: "", porcentaje: "" },
-              { criterio: "", porcentaje: "" },
-            ],
-          },
-        ],
-      }))
-    }
-  }
-
-  const removeBloqueBimestre = (bimestreIndex: number) => {
-    if (formData.criterios_bimestre.length > 1) {
-      const newCriteriosBimestre = formData.criterios_bimestre.filter((_, i) => i !== bimestreIndex)
-      setFormData((prev) => ({ ...prev, criterios_bimestre: newCriteriosBimestre }))
-    }
-  }
+  const switchToBimestreMode = () => {
+    setCriteriosMode("bimestre");
+    setFormData((prev) => ({
+      ...prev,
+      criterios_bimestre: [
+        {
+          nombre: "1er Bimestre",
+          criterios: [
+            { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
+          ],
+        },
+        {
+          nombre: "2do Bimestre",
+          criterios: [
+            { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
+          ],
+        },
+        {
+          nombre: "3er Bimestre",
+          criterios: [
+            { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
+          ],
+        },
+      ],
+    }));
+  };
 
   const handleUnidadChange = (unidadIndex: number, field: keyof Unidad, value: string) => {
     const newUnidades = [...formData.unidades]
@@ -1031,7 +1030,7 @@ export default function CreateSequenceModule() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={addBloqueBimestre}
+                    onClick={switchToBimestreMode}
                     className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                   >
                     <Plus className="h-4 w-4" />
@@ -1124,17 +1123,6 @@ export default function CreateSequenceModule() {
                       <Target className="h-4 w-4" />
                       Volver a Criterios Generales
                     </Button>
-                    {formData.criterios_bimestre.length < 3 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={addBloqueBimestre}
-                        className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Agregar Bimestre
-                      </Button>
-                    )}
                   </div>
                 </div>
 
