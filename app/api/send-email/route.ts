@@ -17,8 +17,8 @@ export async function POST(request: NextRequest) {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "ramiro.mota@upgch.mx", // Reemplazar con el email desde el cual se enviará
-        pass: "evgw ezrn lomf skyh", // Contraseña de aplicación proporcionada
+        user: "ramiro.mota.tb@gmail.com", // Reemplazar con el email desde el cual se enviará
+        pass: "tzvm okcr annz ajbv", // Contraseña de aplicación proporcionada
       },
     })
 
@@ -27,10 +27,9 @@ export async function POST(request: NextRequest) {
 
     // Configurar el contenido del email
     const mailOptions = {
-      from: "ramiro.mota@upgch.mx", // Reemplazar con el email desde el cual se enviará
-      to: "gezer.cruz@upgch.mx",
-      cc: "fernando.arreola@upgch.mx",
-      subject: `Secuencia Didáctica Extemporánea para Revisión - ${asignatura}`,
+      from: "ramiro.mota.tb@gmail.com", // Reemplazar con el email desde el cual se enviará
+      to: "ddocente.daa@upgch.edu.mx",
+      subject: `Secuencia Didáctica Reglamentaria para Revisión - ${asignatura}`,
       html: `
            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
              <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
