@@ -139,11 +139,15 @@ const initialFormData: FormData = {
   criterios: [
     { criterio: "", porcentaje: "" },
     { criterio: "", porcentaje: "" },
+    { criterio: "", porcentaje: "" },
+    { criterio: "", porcentaje: "" },
   ],
   criterios_bimestre: [
     {
       nombre: "1er Bimestre",
       criterios: [
+        { criterio: "", porcentaje: "" },
+        { criterio: "", porcentaje: "" },
         { criterio: "", porcentaje: "" },
         { criterio: "", porcentaje: "" },
       ],
@@ -185,14 +189,6 @@ const programas = [
 const ciclos = [
   "AE-2526",
   "FJ-2626",
-  "AE-2627",
-  "FJ-2727",
-  "AE-2728",
-  "FJ-2828",
-  "AE-2829",
-  "FJ-2929",
-  "AE-2930",
-  "FJ-3030",
 ]
 
 const semestre = [
@@ -416,6 +412,8 @@ export default function CreateSequenceModule() {
           criterios: [
             { criterio: "", porcentaje: "" },
             { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
           ],
         },
         {
@@ -423,11 +421,15 @@ export default function CreateSequenceModule() {
           criterios: [
             { criterio: "", porcentaje: "" },
             { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
           ],
         },
         {
           nombre: "3er Bimestre",
           criterios: [
+            { criterio: "", porcentaje: "" },
+            { criterio: "", porcentaje: "" },
             { criterio: "", porcentaje: "" },
             { criterio: "", porcentaje: "" },
           ],
@@ -730,7 +732,7 @@ export default function CreateSequenceModule() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto p-6">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Crear Secuencia Didáctica (Reglamentaria sin Validar)</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Crear Secuencia Didáctica</h2>
         <p className="text-gray-600 mt-2">Completa el formato para crear una nueva secuencia didáctica</p>
         <p className="text-blue-600 font-bold mt-2">Nota: Escriba utilizando mayúsculas y minúsculas de manera correcta en todo el formato.</p>
       </div>
