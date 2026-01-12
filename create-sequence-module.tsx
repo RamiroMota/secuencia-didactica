@@ -188,41 +188,23 @@ const initialFormData: FormData = {
 };
 
 const programas = [
-  "Licenciatura En Arquitectura",
-  "Ingeniería En Animación Y Diseño De Contenidos Digitales",
-  "Licenciatura En Nutrición",
-  "Licenciatura En Psicología",
-  "Licenciatura En Psicología Clínica",
-  "Licenciatura En Enseñanza Del Idioma Inglés",
-  "Licenciatura En Derecho",
-  "Licenciatura En Derecho mixta",
-  "Licenciatura En Educación Física Y Deportiva",
-  "Licenciatura En Educación Física Y Deportiva mixta",
-  "Licenciatura En Enfermería",
-  "Licenciatura En Pedagogía",
-  "Licenciatura En Químico Farmacobiólogo",
-  "Licenciatura En Cirujano Odontólogo",
-  "Licenciatura En Médico Cirujano",
-  "Licenciatura En Administración de Empresas Mixta",
-  "Licenciatura En Administración Financiera y Sistemas",
-  "Licenciatura En Administración de Empresas Globales",
-  "Licenciatura En Mercadotecnia y comunicación gráfica",
-  "Licenciatura En Administración De Empresas",
-  "Licenciatura En Contaduría Pública",
-  "Licenciatura En Contaduría Pública mixta",
+  "Especialidad en Enfermería pediátrica (Mixto)",
+  "Especialidad en Enfermería quirúrgica (Mixto)",
+  "Especialidad en Enfermería nefrología (Mixto)",
+  "Especialidad en Enfermería geriátrica (Mixto)",
+  "Especialidad en Enfermería urgencias (Mixto)",
+  "Especialidad en Enfermería obstetricia (Mixto)",
+  "Maestría en Alta dirección",
+  "Maestría en Psicopedagogía",
 ];
 
-const ciclos = ["AE-2526", "FJ-2626"];
+const ciclos = ["FJ-2626"];
 
 const semestre = [
   "1er. Semestre",
   "2do. Semestre",
   "3er. Semestre",
   "4to. Semestre",
-  "5to. Semestre",
-  "6to. Semestre",
-  "7mo. Semestre",
-  "8vo. Semestre",
 ];
 
 // Constantes para localStorage
@@ -551,7 +533,7 @@ export default function CreateSequenceModule() {
   };
 
   const addUnidad = () => {
-    if (formData.unidades.length < 6) {
+    if (formData.unidades.length < 4) {
       const newUnidad = JSON.parse(JSON.stringify(initialUnidad));
       setFormData((prev) => ({
         ...prev,
@@ -643,7 +625,7 @@ export default function CreateSequenceModule() {
 
     // Validaciones básicas
     if (!formData.titulo.trim()) newErrors.titulo = "El título es requerido";
-    if (!formData.programa) newErrors.programa = "El programa es requerido";
+    if (!formData.programa) newErrors.programa = "El nombre del posgrado es requerido";
     if (!formData.ciclo) newErrors.ciclo = "El ciclo es requerido";
     if (!formData.nombre.trim())
       newErrors.nombre = "El nombre del docente es requerido";
@@ -908,7 +890,7 @@ export default function CreateSequenceModule() {
       <div className="space-y-6 max-w-6xl mx-auto p-6">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Crear Secuencia Didáctica
+            Crear Secuencia Didáctica - Posgrado
           </h2>
           <p className="text-gray-600 mt-2">Cargando formulario...</p>
         </div>
@@ -921,7 +903,7 @@ export default function CreateSequenceModule() {
       <div className="space-y-6 max-w-6xl mx-auto p-6">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Crear Secuencia Didáctica
+            Crear Secuencia Didáctica - Posgrado
           </h2>
           <p className="text-gray-600 mt-2">
             Completa el formato para crear una nueva secuencia didáctica
@@ -1030,7 +1012,7 @@ export default function CreateSequenceModule() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="programa">Programa educativo *</Label>
+                  <Label htmlFor="programa">Nombre del posgrado *</Label>
                   <Select
                     value={formData.programa}
                     onValueChange={(value) =>
@@ -1285,15 +1267,6 @@ export default function CreateSequenceModule() {
                       <Target className="h-4 w-4" />
                       Criterios Generales
                     </h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={switchToBimestreMode}
-                      className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Cambiar a Criterios por Bimestre
-                    </Button>
                   </div>
 
                   {errors.porcentajes && (
@@ -1678,7 +1651,7 @@ export default function CreateSequenceModule() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2 text-lg">
                         <BookOpen className="h-5 w-5" />
-                        Unidad {unidadIndex + 1}
+                        Sesión {unidadIndex + 1}
                       </CardTitle>
                       {formData.unidades.length > 1 && (
                         <Button
@@ -1689,12 +1662,12 @@ export default function CreateSequenceModule() {
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <Minus className="h-4 w-4 mr-1" />
-                          Eliminar Unidad
+                          Eliminar Sesión
                         </Button>
                       )}
                     </div>
                     <CardDescription>
-                      Contenido y actividades de la unidad {unidadIndex + 1}
+                      Contenido y actividades de la Sesión {unidadIndex + 1}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -1713,7 +1686,7 @@ export default function CreateSequenceModule() {
                             e.target.value
                           )
                         }
-                        placeholder="Tema principal de la unidad"
+                        placeholder="Tema principal de la sesisón"
                       />
                     </div>
 
@@ -1986,7 +1959,7 @@ export default function CreateSequenceModule() {
 
               {/* Botón para agregar unidades */}
               <div className="flex justify-center">
-                {formData.unidades.length < 6 && (
+                {formData.unidades.length < 4 && (
                   <Button
                     type="button"
                     variant="outline"
@@ -1994,14 +1967,14 @@ export default function CreateSequenceModule() {
                     className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                   >
                     <Plus className="h-4 w-4" />
-                    Agregar Nueva Unidad
+                    Agregar Nueva Sesión
                   </Button>
                 )}
               </div>
 
               <div className="text-xs text-gray-500 text-center">
-                Mínimo 1 unidad, máximo 6 unidades. Actualmente:{" "}
-                {formData.unidades.length} unidad(es)
+                Mínimo 1 sesión, máximo 4 sesiones. Actualmente:{" "}
+                {formData.unidades.length} sesion(es)
               </div>
 
               {/* Actividad Final */}
