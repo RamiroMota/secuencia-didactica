@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const mailOptions = {
       from: "ramiro.mota.tb@gmail.com", // Reemplazar con el email desde el cual se enviará
       to: "ddocente.daa@upgch.edu.mx",
-      subject: `Secuencia Didáctica - Posgrado sin validar para Revisión - ${asignatura}`,
+      subject: `Secuencia Didáctica sin validar para Revisión - ${asignatura}`,
       html: `
            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
              <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
