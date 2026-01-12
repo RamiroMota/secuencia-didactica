@@ -134,7 +134,7 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
           new Paragraph({
             children: [
               new TextRun({
-                text: "SECUENCIA DIDÁCTICA",
+                text: "SECUENCIA DIDÁCTICA - POSGRADO",
                 bold: true,
                 size: TITLE_SIZE,
                 font: FONT_FAMILY,
@@ -179,7 +179,7 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: "Programa educativo:",
+                            text: "Nombre del posgrado:",
                             bold: true,
                             size: BODY_SIZE,
                             font: FONT_FAMILY,
@@ -806,7 +806,7 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: `UNIDAD ${unidadIndex + 1}`,
+                  text: `SESIÓN ${unidadIndex + 1}`,
                   bold: true,
                   size: TITLE_SIZE,
                   font: FONT_FAMILY,
