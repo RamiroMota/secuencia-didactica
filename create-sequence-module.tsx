@@ -202,7 +202,7 @@ const programas = [
   "Licenciatura en Enfermería (Escolarizada)",
   "Licenciatura en Enfermería (Mixto)",
   "Licenciatura en Arquitectura (Escolarizada)",
-  "Ingeniería en animación y diseño de contenidos digitales (Escolarizada)",
+  "Ingeniería en Animación y diseño de contenidos digitales (Escolarizada)",
   "Licenciatura en Inglés (Mixto)",
   "Licenciatura en Nutrición (Escolarizada)",
   "Licenciatura en Psicología clínica (Escolarizada)",
