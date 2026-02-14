@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
     const programa = formData.get("programa") as string
     const ciclo = formData.get("ciclo") as string
     const titulo = formData.get("titulo") as string
+    const semestre = formData.get("semestre") as string
     const documento = formData.get("documento") as File
 
     // Configurar el transportador de nodemailer
@@ -58,6 +59,10 @@ export async function POST(request: NextRequest) {
                  <tr>
                    <td style="padding: 8px 0; font-weight: bold; color: #374151;">Asignatura:</td>
                    <td style="padding: 8px 0; color: #6b7280;">${asignatura}</td>
+                 </tr>
+                 <tr>
+                   <td style="padding: 8px 0; font-weight: bold; color: #374151;">Semestre:</td>
+                   <td style="padding: 8px 0; color: #6b7280;">${semestre}</td>
                  </tr>
                  <tr>
                    <td style="padding: 8px 0; font-weight: bold; color: #374151;">Nombre del Archivo:</td>

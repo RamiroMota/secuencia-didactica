@@ -765,6 +765,7 @@ export default function CreateSequenceModule() {
       formDataForEmail.append("programa", formData.programa);
       formDataForEmail.append("ciclo", formData.ciclo);
       formDataForEmail.append("titulo", formData.titulo);
+      formDataForEmail.append("semestre", formData.semestre);
       formDataForEmail.append("documento", docxBlob, fileName);
 
       const response = await fetch("/api/send-email", {
