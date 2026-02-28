@@ -923,7 +923,7 @@ export default function CreateSequenceModule() {
       <div className="space-y-6 max-w-6xl mx-auto p-6">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Crear Secuencia Didáctica
+            Crear Secuencia Didáctica (Extemporanea)
           </h2>
           <p className="text-gray-600 mt-2">
             Completa el formato para crear una nueva secuencia didáctica
