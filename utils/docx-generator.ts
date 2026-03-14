@@ -134,7 +134,7 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
           new Paragraph({
             children: [
               new TextRun({
-                text: "SECUENCIA DIDÁCTICA (Extemporanea)",
+                text: "SECUENCIA DIDÁCTICA (Reglamentaria)",
                 bold: true,
                 size: TITLE_SIZE,
                 font: FONT_FAMILY,
