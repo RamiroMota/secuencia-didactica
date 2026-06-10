@@ -3,6 +3,15 @@
 import type React from "react";
 
 import { useState, useEffect, useCallback } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  DIVISION_CARRERAS,
+  CARRERA_PROGRAMAS,
+  type Division,
+  type Carrera,
+} from "./lib/academic-data";
 import {
   Card,
   CardContent,
@@ -51,8 +60,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import QRCode from "qrcode";
-import { generateDocx } from "./utils/docx-generator";
-import { Packer } from "docx";
 import LoadingModal from "@/components/ui/loading-modal";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -83,6 +90,8 @@ interface CriterioBimestre {
 
 interface FormData {
   // Información General
+  division: string;
+  carrera: string;
   programa: string;
   ciclo: string;
   titulo: string;
@@ -148,6 +157,8 @@ const initialUnidad: Unidad = {
 };
 
 const initialFormData: FormData = {
+  division: "",
+  carrera: "",
   programa: "",
   ciclo: "",
   titulo: "",
@@ -231,6 +242,15 @@ const STORAGE_KEY = "secuencia-didactica-form";
 const STORAGE_EXPIRY_HOURS = 1;
 const STORAGE_EXPIRY_MS = STORAGE_EXPIRY_HOURS * 60 * 60 * 1000; // 1 hora en milisegundos
 
+const generalInfoSchema = z.object({
+  division: z.string().min(1, "La dirección de división es requerida"),
+  carrera: z.string().min(1, "La dirección de carrera es requerida"),
+  programa: z.string().min(1, "El programa educativo es requerido"),
+  ciclo: z.string().min(1, "El ciclo es requerido"),
+  titulo: z.string().min(1, "El nombre del archivo es requerido"),
+  semestre: z.string().min(1, "El semestre es requerido"),
+});
+
 export default function CreateSequenceModule() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -250,6 +270,102 @@ export default function CreateSequenceModule() {
   );
   const [isCriteriaValid, setIsCriteriaValid] = useState(false);
   const [showCriteriaModal, setShowCriteriaModal] = useState(false);
+
+  // Initialize React Hook Form
+  const {
+    register,
+    control,
+    setValue,
+    watch,
+    formState: { errors: hookErrors },
+  } = useForm({
+    resolver: zodResolver(generalInfoSchema),
+    defaultValues: {
+      division: formData.division,
+      carrera: formData.carrera,
+      programa: formData.programa,
+      ciclo: formData.ciclo,
+      titulo: formData.titulo,
+      semestre: formData.semestre,
+    },
+  });
+
+  const watchedDivision = watch("division");
+  const watchedCarrera = watch("carrera");
+  const watchedPrograma = watch("programa");
+  const watchedCiclo = watch("ciclo");
+  const watchedTitulo = watch("titulo");
+  const watchedSemestre = watch("semestre");
+
+  const availableCarreras = watchedDivision
+    ? DIVISION_CARRERAS[watchedDivision as Division] || []
+    : [];
+  const availableProgramas = watchedCarrera
+    ? CARRERA_PROGRAMAS[watchedCarrera as Carrera] || []
+    : [];
+
+  // Keep react-hook-form values in sync with local storage load/reset
+  useEffect(() => {
+    setValue("division", formData.division || "");
+    setValue("carrera", formData.carrera || "");
+    setValue("programa", formData.programa || "");
+    setValue("ciclo", formData.ciclo || "");
+    setValue("titulo", formData.titulo || "");
+    setValue("semestre", formData.semestre || "");
+  }, [
+    formData.division,
+    formData.carrera,
+    formData.programa,
+    formData.ciclo,
+    formData.titulo,
+    formData.semestre,
+    setValue,
+  ]);
+
+  // Handle nested reactive state updates
+  useEffect(() => {
+    if (watchedDivision && watchedDivision !== formData.division) {
+      setValue("carrera", "");
+      setValue("programa", "");
+      setFormData((prev) => ({
+        ...prev,
+        division: watchedDivision,
+        carrera: "",
+        programa: "",
+      }));
+    }
+  }, [watchedDivision, setValue, formData.division]);
+
+  useEffect(() => {
+    if (watchedCarrera && watchedCarrera !== formData.carrera) {
+      setValue("programa", "");
+      setFormData((prev) => ({
+        ...prev,
+        carrera: watchedCarrera,
+        programa: "",
+      }));
+    }
+  }, [watchedCarrera, setValue, formData.carrera]);
+
+  // Sync general changes to main formData state
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      division: watchedDivision || "",
+      carrera: watchedCarrera || "",
+      programa: watchedPrograma || "",
+      ciclo: watchedCiclo || "",
+      titulo: watchedTitulo || "",
+      semestre: watchedSemestre || "",
+    }));
+  }, [
+    watchedDivision,
+    watchedCarrera,
+    watchedPrograma,
+    watchedCiclo,
+    watchedTitulo,
+    watchedSemestre,
+  ]);
 
   // Función para guardar datos en localStorage
   const saveToStorage = useCallback((data: FormData) => {
@@ -553,10 +669,26 @@ export default function CreateSequenceModule() {
 
   const addUnidad = () => {
     if (formData.unidades.length < 6) {
-      const newUnidad = JSON.parse(JSON.stringify(initialUnidad));
       setFormData((prev) => ({
         ...prev,
-        unidades: [...prev.unidades, newUnidad],
+        unidades: [
+          ...prev.unidades,
+          {
+            tema: "",
+            subtemas: [
+              { subtema1: "", subtema2: "" },
+              { subtema1: "", subtema2: "" },
+            ],
+            objetivo: "",
+            actividades: [
+              { actividad_inicio: "", actividad_desarrollo: "", actividad_cierre: "" },
+              { actividad_inicio: "", actividad_desarrollo: "", actividad_cierre: "" },
+              { actividad_inicio: "", actividad_desarrollo: "", actividad_cierre: "" },
+            ],
+            evidencia: "",
+            instrumento: "",
+          },
+        ],
       }));
     }
   };
@@ -643,6 +775,8 @@ export default function CreateSequenceModule() {
     const newErrors: { [key: string]: string } = {};
 
     // Validaciones básicas
+    if (!formData.division) newErrors.division = "La dirección de división es requerida";
+    if (!formData.carrera) newErrors.carrera = "La dirección de carrera es requerida";
     if (!formData.titulo.trim()) newErrors.titulo = "El título es requerido";
     if (!formData.programa) newErrors.programa = "El programa es requerido";
     if (!formData.ciclo) newErrors.ciclo = "El ciclo es requerido";
@@ -721,11 +855,6 @@ export default function CreateSequenceModule() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const generateDocxBlob = async (formData: FormData): Promise<Blob> => {
-    const doc = await generateDocx(formData);
-    return await Packer.toBlob(doc);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -736,59 +865,32 @@ export default function CreateSequenceModule() {
 
     setShowErrors(false);
     setIsSubmitting(true);
+
+    const loadingToastId = toast.loading("Generando documento DOCX y enviando por correo electrónico a tu director de carrera... Por favor, espera.");
+
     try {
-      // Generar documento DOCX
-      const docxBlob = await generateDocxBlob(formData);
-
-      // Descargar documento
-      const fileName = formData.titulo.trim()
-        ? `${formData.titulo.replace(/[^a-zA-Z0-9]/g, "-")}.docx`
-        : "secuencia-didactica.docx";
-
-      const url = URL.createObjectURL(docxBlob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      // Enviar correo con el documento adjunto
-      const formDataForEmail = new FormData();
-      formDataForEmail.append(
-        "correo_institucional",
-        formData.correo_institucional
-      );
-      formDataForEmail.append("nombre", formData.nombre);
-      formDataForEmail.append("asignatura", formData.asignatura);
-      formDataForEmail.append("programa", formData.programa);
-      formDataForEmail.append("ciclo", formData.ciclo);
-      formDataForEmail.append("titulo", formData.titulo);
-      formDataForEmail.append("semestre", formData.semestre);
-      formDataForEmail.append("documento", docxBlob, fileName);
-
       const response = await fetch("/api/send-email", {
         method: "POST",
-        body: formDataForEmail,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
       const result = await response.json();
 
       if (result.success) {
+        toast.success("¡Documento generado y enviado a tu director de carrera satisfactoriamente!", { id: loadingToastId });
         setSubmitSuccess(true);
-        // Limpiar datos guardados después del envío exitoso
         clearStorage();
-        // Ocultar mensaje de éxito después de 5 segundos
         setTimeout(() => setSubmitSuccess(false), 5000);
       } else {
         console.error("Error al enviar email:", result.message);
-        // Mostrar el éxito del documento aunque falle el email
-        setSubmitSuccess(true);
-        setTimeout(() => setSubmitSuccess(false), 3000);
+        toast.error(`Error al enviar la secuencia: ${result.message || "Error desconocido"}`, { id: loadingToastId });
       }
     } catch (error) {
-      console.error("Error al generar documento:", error);
+      console.error("Error al generar o enviar documento:", error);
+      toast.error("Ocurrió un error inesperado al generar el documento o enviar el correo.", { id: loadingToastId });
     } finally {
       setIsSubmitting(false);
     }
@@ -821,6 +923,13 @@ export default function CreateSequenceModule() {
     setCriteriosMode("generales"); // Resetear el modo
     setIsCriteriaValid(false);
     clearStorage(); // Limpiar datos guardados al resetear
+    // Resetear campos de react-hook-form
+    setValue("division", "");
+    setValue("carrera", "");
+    setValue("programa", "");
+    setValue("ciclo", "");
+    setValue("titulo", "");
+    setValue("semestre", "");
   };
 
   const handleActividadChange = (
@@ -1010,8 +1119,9 @@ export default function CreateSequenceModule() {
           <Alert className="bg-green-50 border-green-200">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800">
-              ¡Secuencia didáctica creada y enviada exitosamente! El documento
-              ha sido descargado y enviado por correo para revisión.
+              ¡Documento generado y enviado a tu director de carrera satisfactoriamente! 
+              El archivo DOCX ha sido generado con el membrete institucional y enviado 
+              por correo electrónico para su revisión.
             </AlertDescription>
           </Alert>
         )}
@@ -1030,69 +1140,166 @@ export default function CreateSequenceModule() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Nivel 1: Dirección de división */}
+                <div className="space-y-2">
+                  <Label htmlFor="division">Dirección de división *</Label>
+                  <Controller
+                    name="division"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                        }}
+                      >
+                        <SelectTrigger
+                          id="division"
+                          className={errors.division ? "border-red-500" : ""}
+                        >
+                          <SelectValue placeholder="Selecciona división" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Dirección de división Salud">
+                            Dirección de división Salud
+                          </SelectItem>
+                          <SelectItem value="Dirección de división de Medicina">
+                            Dirección de división de Medicina
+                          </SelectItem>
+                          <SelectItem value="Dirección de división Profesionales">
+                            Dirección de división Profesionales
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.division && (
+                    <p className="text-sm text-red-500">{errors.division}</p>
+                  )}
+                </div>
+
+                {/* Nivel 2: Dirección de carrera */}
+                <div className="space-y-2">
+                  <Label htmlFor="carrera">Dirección de carrera *</Label>
+                  <Controller
+                    name="carrera"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                        }}
+                        disabled={!watchedDivision}
+                      >
+                        <SelectTrigger
+                          id="carrera"
+                          className={errors.carrera ? "border-red-500" : ""}
+                        >
+                          <SelectValue placeholder="Selecciona carrera" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableCarreras.map((carrera) => (
+                            <SelectItem key={carrera} value={carrera}>
+                              {carrera}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.carrera && (
+                    <p className="text-sm text-red-500">{errors.carrera}</p>
+                  )}
+                </div>
+
+                {/* Nivel 3: Programa educativo */}
                 <div className="space-y-2">
                   <Label htmlFor="programa">Programa educativo *</Label>
-                  <Select
-                    value={formData.programa}
-                    onValueChange={(value) =>
-                      handleInputChange("programa", value)
-                    }
-                  >
-                    <SelectTrigger
-                      className={errors.programa ? "border-red-500" : ""}
-                    >
-                      <SelectValue placeholder="Selecciona un programa" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {programas.map((programa) => (
-                        <SelectItem key={programa} value={programa}>
-                          {programa}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="programa"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                        }}
+                        disabled={!watchedCarrera}
+                      >
+                        <SelectTrigger
+                          id="programa"
+                          className={errors.programa ? "border-red-500" : ""}
+                        >
+                          <SelectValue placeholder="Selecciona programa" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableProgramas.map((prog) => (
+                            <SelectItem key={prog} value={prog}>
+                              {prog}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                   {errors.programa && (
                     <p className="text-sm text-red-500">{errors.programa}</p>
                   )}
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="ciclo">Ciclo *</Label>
-                  <Select
-                    value={formData.ciclo}
-                    onValueChange={(value) => handleInputChange("ciclo", value)}
-                  >
-                    <SelectTrigger
-                      className={errors.ciclo ? "border-red-500" : ""}
-                    >
-                      <SelectValue placeholder="Selecciona un ciclo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ciclos.map((ciclo) => (
-                        <SelectItem key={ciclo} value={ciclo}>
-                          {ciclo}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="ciclo"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                        }}
+                      >
+                        <SelectTrigger
+                          id="ciclo"
+                          className={errors.ciclo ? "border-red-500" : ""}
+                        >
+                          <SelectValue placeholder="Selecciona un ciclo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ciclos.map((cic) => (
+                            <SelectItem key={cic} value={cic}>
+                              {cic}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                   {errors.ciclo && (
                     <p className="text-sm text-red-500">{errors.ciclo}</p>
                   )}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="titulo">Nombre del archivo *</Label>
-                  <Input
-                    id="titulo"
-                    value={formData.titulo}
-                    onChange={(e) =>
-                      handleInputChange("titulo", e.target.value)
-                    }
-                    placeholder="Ej: Secuencia-didactica-matemáticas-2025"
-                    className={errors.titulo ? "border-red-500" : ""}
+                  <Controller
+                    name="titulo"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        id="titulo"
+                        value={field.value}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                        placeholder="Ej: Secuencia-didactica-matemáticas-2025"
+                        className={errors.titulo ? "border-red-500" : ""}
+                      />
+                    )}
                   />
                   {errors.titulo && (
                     <p className="text-sm text-red-500">{errors.titulo}</p>
@@ -1100,26 +1307,36 @@ export default function CreateSequenceModule() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="semestre">Semestre</Label>
-                  <Select
-                    value={formData.semestre}
-                    onValueChange={(value) =>
-                      handleInputChange("semestre", value)
-                    }
-                  >
-                    <SelectTrigger
-                      className={errors.semestre ? "border-red-500" : ""}
-                    >
-                      <SelectValue placeholder="Selecciona un semestre" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {semestre.map((semestre) => (
-                        <SelectItem key={semestre} value={semestre}>
-                          {semestre}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="semestre">Semestre *</Label>
+                  <Controller
+                    name="semestre"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                        }}
+                      >
+                        <SelectTrigger
+                          id="semestre"
+                          className={errors.semestre ? "border-red-500" : ""}
+                        >
+                          <SelectValue placeholder="Selecciona un semestre" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {semestre.map((sem) => (
+                            <SelectItem key={sem} value={sem}>
+                              {sem}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.semestre && (
+                    <p className="text-sm text-red-500">{errors.semestre}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -2207,10 +2424,10 @@ export default function CreateSequenceModule() {
                 </Alert>
               )}
               <p className="text-sm font-bold text-blue-600">
-                Nota: Al dar clic en Guardar y Enviar Secuencia, se descargará
-                automáticamente un archivo .docx como evidencia y la secuencia
-                didáctica será enviada automaticamente a la Dirección Academica
-                para su revisión.
+                Nota: Al hacer clic en Guardar y Enviar Secuencia, el documento
+                será generado y enviado directamente por correo electrónico a la
+                Dirección de Carrera correspondiente para su revisión. La descarga
+                local ha sido deshabilitada.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <Button
