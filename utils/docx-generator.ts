@@ -11,6 +11,12 @@ import {
   WidthType,
   BorderStyle,
   ImageRun,
+  Header,
+  HorizontalPositionRelativeFrom,
+  HorizontalPositionAlign,
+  VerticalPositionRelativeFrom,
+  VerticalPositionAlign,
+  TextWrappingType,
 } from "docx"
 
 interface Unidad {
@@ -117,6 +123,10 @@ const createModuleTable = (title: string, rows: { label: string, value: string }
   });
 };
 
+// Dimensiones estándar de página Letter en puntos (pt)
+const PAGE_WIDTH = 792;  // 8.5 pulgadas * 72 pt
+const PAGE_HEIGHT = 1121; // 11 pulgadas * 72 pt
+
 export const generateDocx = async (formData: FormData): Promise<Document> => {
   const usarCriteriosBimestre = shouldUseCriteriosBimestre(formData)
 
@@ -141,28 +151,42 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
     },
     sections: [
       {
+        headers: {
+          default: new Header({
+            children: [
+              new Paragraph({
+                children: [
+                  imageBuffer ? new ImageRun({
+                    data: imageBuffer,
+                    transformation: {
+                      width: PAGE_WIDTH,
+                      height: PAGE_HEIGHT,
+                    },
+                    floating: {
+                      horizontalPosition: {
+                        relative: HorizontalPositionRelativeFrom.PAGE,
+                        align: HorizontalPositionAlign.CENTER,
+                      },
+                      verticalPosition: {
+                        relative: VerticalPositionRelativeFrom.PAGE,
+                        align: VerticalPositionAlign.TOP,
+                      },
+                      wrap: {
+                        type: TextWrappingType.NONE,
+                      },
+                      behindText: true, // ESTO HACE QUE SEA UNA PLANTILLA DE FONDO
+                    },
+                  }) : new TextRun(""),
+                ],
+              }),
+            ],
+          }),
+        },
         children: [
-          // MEMBRETE INSTITUCIONAL (imagen inline al inicio del documento)
-          ...(imageBuffer ? [
-            new Paragraph({
-              children: [
-                new ImageRun({
-                  data: imageBuffer,
-                  transformation: {
-                    width: 612,
-                    height: 150,
-                  },
-                }),
-              ],
-              alignment: AlignmentType.CENTER,
-              spacing: { after: 200 },
-            }),
-          ] : []),
-
           new Paragraph({
             children: [new TextRun({ text: "SECUENCIA DIDÁCTICA", bold: true, size: 32 })],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 200, after: 400 },
+            spacing: { before: 800, after: 400 },
           }),
 
           // Module 1: General Information
