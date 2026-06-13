@@ -13,16 +13,24 @@ interface SendEmailParams {
   attachments?: GmailAttachment[]
 }
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-})
+let transporter: nodemailer.Transporter | null = null
+
+function getTransporter() {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    })
+  }
+  return transporter
+}
 
 export async function sendEmailWithGmail({ to, subject, html, attachments }: SendEmailParams) {
-  const info = await transporter.sendMail({
+  const transport = getTransporter()
+  const info = await transport.sendMail({
     from: `"Sistema de Secuencias" <${process.env.GMAIL_USER}>`,
     to,
     subject,
