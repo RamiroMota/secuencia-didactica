@@ -131,8 +131,11 @@ interface FormData {
 
   // Firmas
   nombre_firma: string;
-  correo_institucional: string; // Nuevo campo
+  correo_institucional: string;
   firma_academia: string;
+  
+  // QR Code
+  qr_nombre_firma?: string;
 }
 
 interface StoredFormData {
@@ -706,13 +709,29 @@ export default function CreateSequenceModule() {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
 
-    // Generar QR codes para los campos de firma
-    if (field === "nombre_firma") {
-      const qr = await generateQRCode(value);
-      setQrNombreFirma(qr);
-    } else if (field === "firma_academia") {
-      const qr = await generateQRCode(value);
-      setQrFirmaAcademia(qr);
+    // Generar QR codes para los campos de firma con todos los datos
+    if (field === "nombre_firma" || field === "firma_academia") {
+      const fechaEnvio = new Date().toLocaleDateString("es-MX", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      const qrData = [
+        `Docente: ${formData.nombre}`,
+        `Ciclo: ${formData.ciclo}`,
+        `Asignatura: ${formData.asignatura}`,
+        `Fecha de envío: ${fechaEnvio}`,
+      ].join("\n");
+
+      const qr = await generateQRCode(qrData);
+      if (field === "nombre_firma") {
+        setQrNombreFirma(qr);
+      } else {
+        setQrFirmaAcademia(qr);
+      }
     }
   };
 
@@ -866,15 +885,38 @@ export default function CreateSequenceModule() {
     setShowErrors(false);
     setIsSubmitting(true);
 
+    // Generar QR con los datos completos
+    const fechaEnvio = new Date().toLocaleDateString("es-MX", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const qrData = [
+      `Docente: ${formData.nombre}`,
+      `Ciclo: ${formData.ciclo}`,
+      `Asignatura: ${formData.asignatura}`,
+      `Fecha de envío: ${fechaEnvio}`,
+    ].join("\n");
+
+    const qrGenerated = await generateQRCode(qrData);
+
     const loadingToastId = toast.loading("Generando documento DOCX y enviando por correo electrónico a tu director de carrera... Por favor, espera.");
 
     try {
+      const dataToSend = {
+        ...formData,
+        qr_nombre_firma: qrGenerated,
+      };
+
       const response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       const result = await response.json();

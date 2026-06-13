@@ -77,9 +77,20 @@ interface FormData {
 }
 
 const FONT_FAMILY = "Arial"
-const TITLE_SIZE = 32 
-const SUBTITLE_SIZE = 24 
-const BODY_SIZE = 22 
+const TITLE_SIZE = 28 // 14 pts
+const SUBTITLE_SIZE = 24 // 12 pts
+const BODY_SIZE = 22 // 11 pts
+
+// Escape XML special characters to prevent document corruption
+const escapeXml = (text: string | undefined | null): string => {
+  if (!text) return ""
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;")
+}
 
 const base64ToBuffer = (base64: string): Buffer => {
   const base64Data = base64.replace(/^data:image\/[a-z]+;base64,/, "")
@@ -94,32 +105,30 @@ const shouldUseCriteriosBimestre = (formData: FormData): boolean => {
   return false;
 }
 
-const createModuleTable = (title: string, rows: { label: string, value: string }[]) => {
+const createModuleTable = (rows: { label: string, value: string }[]) => {
   return new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            children: [new Paragraph({ children: [new TextRun({ text: title, bold: true, size: 24 })] })],
-            columnSpan: 2,
-            shading: { fill: "E0E0E0" },
-          }),
-        ],
-      }),
       ...rows.map(row => new TableRow({
         children: [
           new TableCell({
             width: { size: 30, type: WidthType.PERCENTAGE },
-            children: [new Paragraph({ children: [new TextRun({ text: row.label, bold: true })] })],
+            children: [new Paragraph({ children: [new TextRun({ text: escapeXml(row.label), bold: true })] })],
           }),
           new TableCell({
             width: { size: 70, type: WidthType.PERCENTAGE },
-            children: [new Paragraph({ children: [new TextRun(row.value)] })],
+            children: [new Paragraph({ children: [new TextRun(escapeXml(row.value))] })],
           }),
         ],
       })),
     ],
+  });
+};
+
+const createSubtitle = (text: string) => {
+  return new Paragraph({
+    children: [new TextRun({ text, bold: true, size: SUBTITLE_SIZE })],
+    spacing: { before: 200, after: 100 },
   });
 };
 
@@ -184,45 +193,49 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
         },
         children: [
           new Paragraph({
-            children: [new TextRun({ text: "SECUENCIA DIDÁCTICA", bold: true, size: 32 })],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 800, after: 400 },
+            children: [new TextRun({ text: "SECUENCIA DIDÁCTICA", bold: true, size: TITLE_SIZE })],
+            alignment: AlignmentType.CENTER
           }),
 
           // Module 1: General Information
-          createModuleTable("INFORMACIÓN GENERAL", [
-            { label: "División", value: formData.division || "No especificado" },
-            { label: "Carrera", value: formData.carrera || "No especificado" },
-            { label: "Programa", value: formData.programa || "No especificado" },
-            { label: "Ciclo", value: formData.ciclo || "No especificado" },
-            { label: "Semestre", value: formData.semestre || "No especificado" },
-            { label: "Nombre del Archivo", value: formData.titulo || "No especificado" },
+          createSubtitle("INFORMACIÓN GENERAL"),
+          createModuleTable([
+            { label: "División", value: escapeXml(formData.division) || "No especificado" },
+            { label: "Carrera", value: escapeXml(formData.carrera) || "No especificado" },
+            { label: "Programa", value: escapeXml(formData.programa) || "No especificado" },
+            { label: "Ciclo", value: escapeXml(formData.ciclo) || "No especificado" },
+            { label: "Semestre", value: escapeXml(formData.semestre) || "No especificado" },
           ]),
           new Paragraph({ spacing: { after: 200 } }),
 
           // Module 2: Teacher Info
-          createModuleTable("INFORMACIÓN DEL DOCENTE", [
-            { label: "Nombre", value: formData.nombre || "No especificado" },
-            { label: "Perfil", value: formData.perfil || "No especificado" },
-            { label: "Posgrado", value: formData.posgrado || "No especificado" },
+          createSubtitle("INFORMACIÓN DEL DOCENTE"),
+          createModuleTable([
+            { label: "Nombre", value: escapeXml(formData.nombre) || "No especificado" },
+            { label: "Perfil", value: escapeXml(formData.perfil) || "No especificado" },
+            { label: "Posgrado", value: escapeXml(formData.posgrado) || "No especificado" },
           ]),
           new Paragraph({ spacing: { after: 200 } }),
 
           // Module 3: Academic Info
-          createModuleTable("INFORMACIÓN ACADÉMICA", [
-            { label: "Asignatura", value: formData.asignatura || "No especificado" },
-            { label: "Horas", value: formData.horas || "No especificado" },
-            { label: "Aprendizajes", value: formData.aprendizajes || "No especificado" },
-            { label: "Impacto", value: formData.impacto || "No especificado" },
-            { label: "Competencia", value: formData.competencia || "No especificado" },
+          createSubtitle("INFORMACIÓN ACADÉMICA"),
+          createModuleTable([
+            { label: "Asignatura", value: escapeXml(formData.asignatura) || "No especificado" },
+            { label: "Horas", value: escapeXml(formData.horas) || "No especificado" },
           ]),
-          new Paragraph({ spacing: { after: 400 } }),
+          new Paragraph({ spacing: { after: 200 } }),
+          new Paragraph({ children: [new TextRun({ text: "Aprendizajes:", bold: true })], spacing: { after: 100 } }),
+          new Paragraph({ children: [new TextRun(escapeXml(formData.aprendizajes) || "No especificado")], spacing: { after: 200 } }),
+          new Paragraph({ children: [new TextRun({ text: "Impacto:", bold: true })], spacing: { after: 100 } }),
+          new Paragraph({ children: [new TextRun(escapeXml(formData.impacto) || "No especificado")], spacing: { after: 200 } }),
+          new Paragraph({ children: [new TextRun({ text: "Competencia:", bold: true })], spacing: { after: 100 } }),
+          new Paragraph({ children: [new TextRun(escapeXml(formData.competencia) || "No especificado")], spacing: { after: 400 } }),
 
           // Module 4: Evaluation Criteria
-          new Paragraph({ children: [new TextRun({ text: "CRITERIOS DE EVALUACIÓN", bold: true, size: 24 })], spacing: { before: 200, after: 200 } }),
+          new Paragraph({ children: [new TextRun({ text: "CRITERIOS DE EVALUACIÓN", bold: true, size: SUBTITLE_SIZE })], spacing: { before: 200, after: 200 } }),
           ...(usarCriteriosBimestre 
             ? formData.criterios_bimestre.flatMap((bimestre, idx) => [
-                new Paragraph({ children: [new TextRun({ text: bimestre.nombre || `Bimestre ${idx + 1}`, bold: true, size: 20 })], spacing: { before: 200, after: 100 } }),
+                new Paragraph({ children: [new TextRun({ text: escapeXml(bimestre.nombre) || `Bimestre ${idx + 1}`, bold: true, size: BODY_SIZE })], spacing: { before: 200, after: 100 } }),
                 new Table({
                   width: { size: 100, type: WidthType.PERCENTAGE },
                   rows: [
@@ -234,8 +247,8 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
                     }),
                     ...bimestre.criterios.map(c => new TableRow({
                       children: [
-                        new TableCell({ children: [new Paragraph(c.criterio || "")] }),
-                        new TableCell({ children: [new Paragraph(`${c.porcentaje}%`)] }),
+                        new TableCell({ children: [new Paragraph(escapeXml(c.criterio) || "")] }),
+                        new TableCell({ children: [new Paragraph(`${escapeXml(c.porcentaje)}%`)] }),
                       ],
                     })),
                   ],
@@ -253,8 +266,8 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
                     }),
                     ...formData.criterios.map(c => new TableRow({
                       children: [
-                        new TableCell({ children: [new Paragraph(c.criterio || "")] }),
-                        new TableCell({ children: [new Paragraph(`${c.porcentaje}%`)] }),
+                        new TableCell({ children: [new Paragraph(escapeXml(c.criterio) || "")] }),
+                        new TableCell({ children: [new Paragraph(`${escapeXml(c.porcentaje)}%`)] }),
                       ],
                     })),
                   ],
@@ -264,56 +277,65 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
           new Paragraph({ spacing: { after: 400 } }),
 
           // Module 5: Course Content
-          new Paragraph({ children: [new TextRun({ text: "CONTENIDO DEL CURSO", bold: true, size: 24 })], spacing: { before: 200, after: 200 } }),
+          new Paragraph({ children: [new TextRun({ text: "CONTENIDO DEL CURSO", bold: true, size: SUBTITLE_SIZE })], spacing: { before: 200, after: 200 } }),
           new Paragraph({ children: [new TextRun({ text: "Contextualización:", bold: true })], spacing: { after: 100 } }),
-          new Paragraph({ children: [new TextRun(formData.contextualizacion || "No especificado")], spacing: { after: 400 } }),
+          new Paragraph({ children: [new TextRun(escapeXml(formData.contextualizacion) || "No especificado")], spacing: { after: 400 } }),
 
           // Units
           ...formData.unidades.flatMap((unidad, idx) => [
+            // Título de la Unidad
+            new Paragraph({ children: [new TextRun({ text: `UNIDAD ${idx + 1}:`, bold: true, size: SUBTITLE_SIZE })], spacing: { before: 200, after: 100 } }),
+            new Paragraph({ children: [new TextRun({ text: "Tema principal:", bold: true })], spacing: { after: 100 } }),
+            new Paragraph({ children: [new TextRun(escapeXml(unidad.tema) || "")], spacing: { after: 200 } }),
+            new Paragraph({ children: [new TextRun({ text: "Objetivo:", bold: true })], spacing: { after: 100 } }),
+            new Paragraph({ children: [new TextRun(escapeXml(unidad.objetivo) || "")], spacing: { after: 200 } }),
+            new Paragraph({ children: [new TextRun({ text: "Subtemas:", bold: true })], spacing: { after: 100 } }),
+            ...unidad.subtemas.flatMap((s, i) => [
+              new Paragraph({ children: [new TextRun(`${i * 2 + 1}. ${escapeXml(s.subtema1) || ""}`)], spacing: { after: 50 } }),
+              new Paragraph({ children: [new TextRun(`${i * 2 + 2}. ${escapeXml(s.subtema2) || ""}`)], spacing: { after: 100 } }),
+            ]),
+            new Paragraph({ spacing: { after: 200 } }),
+            // Actividades - Texto independiente con tabla por actividad
+            new Paragraph({ children: [new TextRun({ text: "ACTIVIDADES DE APRENDIZAJE", bold: true, size: SUBTITLE_SIZE })], spacing: { before: 100, after: 100 } }),
+            ...unidad.actividades.flatMap((a, i) => [
+              new Paragraph({ children: [new TextRun({ text: `Actividad ${i + 1}:`, bold: true })], spacing: { after: 100 } }),
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({ width: { size: 33, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "Inicio", bold: true })] })] }),
+                      new TableCell({ width: { size: 34, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "Desarrollo", bold: true })] })] }),
+                      new TableCell({ width: { size: 33, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "Cierre", bold: true })] })] }),
+                    ],
+                  }),
+                  new TableRow({
+                    children: [
+                      new TableCell({ width: { size: 33, type: WidthType.PERCENTAGE }, children: [new Paragraph(escapeXml(a.actividad_inicio) || "")] }),
+                      new TableCell({ width: { size: 34, type: WidthType.PERCENTAGE }, children: [new Paragraph(escapeXml(a.actividad_desarrollo) || "")] }),
+                      new TableCell({ width: { size: 33, type: WidthType.PERCENTAGE }, children: [new Paragraph(escapeXml(a.actividad_cierre) || "")] }),
+                    ],
+                  }),
+                ],
+              }),
+              new Paragraph({ spacing: { after: 100 } }),
+            ]),
+            new Paragraph({ spacing: { after: 200 } }),
+            // Tabla de Evaluación (Evidencia + Instrumento unidos)
+            new Paragraph({ children: [new TextRun({ text: "Evaluación:", bold: true, size: SUBTITLE_SIZE })], spacing: { before: 100, after: 100 } }),
             new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
               rows: [
                 new TableRow({
                   children: [
-                    new TableCell({
-                      columnSpan: 2,
-                      children: [new Paragraph({ children: [new TextRun({ text: `UNIDAD ${idx + 1}: ${unidad.tema}`, bold: true, size: 20 })] })],
-                      shading: { fill: "F0F0F0" },
-                    }),
+                    new TableCell({ width: { size: 50, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "Evidencia de aprendizaje", bold: true })] })] }),
+                    new TableCell({ width: { size: 50, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "Instrumento de evaluación", bold: true })] })] }),
                   ],
                 }),
                 new TableRow({
                   children: [
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Objetivo", bold: true })] })] }),
-                    new TableCell({ children: [new Paragraph(unidad.objetivo || "")] }),
-                  ],
-                }),
-                new TableRow({
-                  children: [
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Subtemas", bold: true })] })] }),
-                    new TableCell({ 
-                      children: [new Paragraph(unidad.subtemas.map((s, sidx) => `${sidx + 1}. ${s.subtema1} ${s.subtema2}`).join("\n"))] 
-                    }),
-                  ],
-                }),
-                new TableRow({
-                  children: [
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Actividades", bold: true })] })] }),
-                    new TableCell({ 
-                      children: [new Paragraph(unidad.actividades.map((a, aidx) => `Act. ${aidx + 1}: ${a.actividad_inicio} / ${a.actividad_desarrollo} / ${a.actividad_cierre}`).join("\n\n"))] 
-                    }),
-                  ],
-                }),
-                new TableRow({
-                  children: [
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Evidencia", bold: true })] })] }),
-                    new TableCell({ children: [new Paragraph(unidad.evidencia || "")] }),
-                  ],
-                }),
-                new TableRow({
-                  children: [
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Instrumento", bold: true })] })] }),
-                    new TableCell({ children: [new Paragraph(unidad.instrumento || "")] }),
+                    new TableCell({ width: { size: 50, type: WidthType.PERCENTAGE }, children: [new Paragraph(escapeXml(unidad.evidencia) || "")] }),
+                    new TableCell({ width: { size: 50, type: WidthType.PERCENTAGE }, children: [new Paragraph(escapeXml(unidad.instrumento) || "")] }),
                   ],
                 }),
               ],
@@ -322,7 +344,7 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
           ]),
 
           // Final Activities
-          new Paragraph({ children: [new TextRun({ text: "ACTIVIDADES FINALES", bold: true, size: 24 })], spacing: { before: 200, after: 200 } }),
+          new Paragraph({ children: [new TextRun({ text: "ACTIVIDADES FINALES", bold: true, size: SUBTITLE_SIZE })], spacing: { before: 200, after: 200 } }),
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
@@ -335,9 +357,9 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
               }),
               ...formData.actividades_finales.map(af => new TableRow({
                 children: [
-                  new TableCell({ children: [new Paragraph(af.actividad_final || "")] }),
-                  new TableCell({ children: [new Paragraph(af.criterios_finales || "")] }),
-                  new TableCell({ children: [new Paragraph(af.instrumentos_finales || "")] }),
+                  new TableCell({ children: [new Paragraph(escapeXml(af.actividad_final) || "")] }),
+                  new TableCell({ children: [new Paragraph(escapeXml(af.criterios_finales) || "")] }),
+                  new TableCell({ children: [new Paragraph(escapeXml(af.instrumentos_finales) || "")] }),
                 ],
               })),
             ],
@@ -345,26 +367,87 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
           new Paragraph({ spacing: { after: 400 } }),
 
           // Signatures
-          new Paragraph({ children: [new TextRun({ text: "FIRMAS Y VALIDACIONES", bold: true, size: 24 })], spacing: { before: 200, after: 200 } }),
-          new Paragraph({ children: [new TextRun({ text: "Firma del Docente:", bold: true })], spacing: { after: 100 } }),
-          new Paragraph({ children: [new TextRun(formData.nombre_firma || "No especificado")], spacing: { after: 200 } }),
-          
-          ...(formData.qr_nombre_firma ? [
-            new Paragraph({ children: [new TextRun({ text: "Firma Digital (QR):", bold: true })], spacing: { after: 100 } }),
-            new Paragraph({
-              children: [
-                new ImageRun({
-                  data: base64ToBuffer(formData.qr_nombre_firma),
-                  transformation: { width: 100, height: 100 },
-                }),
-              ],
-              alignment: AlignmentType.CENTER,
-              spacing: { after: 200 },
-            }),
-          ] : []),
-          
-          new Paragraph({ children: [new TextRun("_".repeat(40))], alignment: AlignmentType.CENTER }),
-          new Paragraph({ children: [new TextRun("Sello y Firma de la Dirección")], alignment: AlignmentType.CENTER }),
+          new Paragraph({ children: [new TextRun({ text: "FIRMAS Y VALIDACIONES", bold: true, size: SUBTITLE_SIZE })], spacing: { before: 200, after: 200 } }),
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            borders: {
+              top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            },
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    width: { size: 50, type: WidthType.PERCENTAGE },
+                    borders: {
+                      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                    },
+                    children: [
+                      ...(formData.qr_nombre_firma ? [
+                        new Paragraph({
+                          children: [
+                            new ImageRun({
+                              data: base64ToBuffer(formData.qr_nombre_firma),
+                              transformation: { width: 100, height: 100 },
+                            }),
+                          ],
+                          alignment: AlignmentType.CENTER,
+                          spacing: { after: 100 },
+                        }),
+                      ] : []),
+                      new Paragraph({ children: [new TextRun(escapeXml(formData.nombre_firma) || "No especificado")], alignment: AlignmentType.CENTER, spacing: { after: 100 } }),
+                      new Paragraph({ children: [new TextRun("_".repeat(30))], alignment: AlignmentType.CENTER, spacing: { after: 50 } }),
+                      new Paragraph({ children: [new TextRun({ text: "Firma Digital", bold: true })], alignment: AlignmentType.CENTER }),
+                    ],
+                  }),
+                  new TableCell({
+                    width: { size: 50, type: WidthType.PERCENTAGE },
+                    borders: {
+                      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                    },
+                    children: [
+                      new Paragraph({
+                        children: [],
+                        spacing: { after: 100 },
+                      }),
+                      new Table({
+                        width: { size: 1502, type: WidthType.DXA },
+                        rows: [
+                          new TableRow({
+                            height: { value: 1502, rule: "exact" },
+                            children: [
+                              new TableCell({
+                                width: { size: 1502, type: WidthType.DXA },
+                                borders: {
+                                  top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                                  bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                                  left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                                  right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                                },
+                                children: [new Paragraph("")],
+                              }),
+                            ],
+                          }),
+                        ],
+                      }),
+                      new Paragraph({ children: [new TextRun("_".repeat(30))], alignment: AlignmentType.CENTER, spacing: { after: 50 } }),
+                      new Paragraph({ children: [new TextRun({ text: "Sello de aprobación", bold: true })], alignment: AlignmentType.CENTER }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
         ],
       },
     ],

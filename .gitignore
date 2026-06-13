@@ -69,3 +69,23 @@ desktop.ini
 *.pem
 *.crt
 *.key
+
+# Credentials
+/credentials/
+
+# ============================================
+# AI Agent & OpenCode Configuration
+# ============================================
+.agents/
+AGENTS.md
+opencode.json
+opencode.txt
+skills-lock.json
+Instruccion.md
+
+# ============================================
+# Test Files (generated during development)
+# ============================================
+test-*.docx
+test-*.ts
+extracted-*/

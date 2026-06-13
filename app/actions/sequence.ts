@@ -14,10 +14,9 @@ import {
   WidthType,
   BorderStyle,
 } from "docx";
-import nodemailer from "nodemailer";
 import fs from "fs/promises";
 import path from "path";
-import dns from "dns/promises";
+import { sendEmailWithGmail } from "@/lib/gmail";
 
 // We use 'any' here to avoid importing the huge FormData interface from the client component
 // which can sometimes cause issues in server actions if not exported correctly.
@@ -245,40 +244,31 @@ export async function saveSequenceAction(data: any) {
 
     const docBuffer = await Packer.toBuffer(doc);
 
-    const host = process.env.EMAIL_HOST || "smtp.gmail.com";
-    const port = Number(process.env.EMAIL_PORT) || 587;
-    
-    // Resolver IPv4 manualmente para evitar ENETUNREACH
-    let ipv4Address = host;
-    try {
-      const lookup = await dns.lookup(host, { family: 4 });
-      ipv4Address = lookup.address;
-    } catch (e) {
-      console.warn("DNS IPv4 lookup failed:", e);
-    }
+    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
 
-    const transporter = nodemailer.createTransport({
-      host: ipv4Address,
-      port: port,
-      secure: port === 465,
-      tls: {
-        servername: host,
-      },
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `"Sistema de Secuencias" <${process.env.EMAIL_USER}>`,
+    await sendEmailWithGmail({
       to: targetEmail,
       subject: `Nueva Secuencia Académica - ${data.programa}`,
-      text: `Se ha generado una nueva secuencia académica para el programa ${data.programa}. Adjunto encontrará el documento DOCX.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
+            Nueva Secuencia Didáctica para Revisión
+          </h2>
+          <p>Se ha generado una nueva secuencia académica para el programa <strong>${data.programa}</strong>.</p>
+          <p>Adjunto encontrará el documento DOCX con la secuencia didáctica completa.</p>
+          <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center; margin-top: 30px;">
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+              Universidad Pablo Guardado Chávez<br>
+              Portal Academico - UPGCH
+            </p>
+          </div>
+        </div>
+      `,
       attachments: [
         {
           filename: "secuencia.docx",
           content: docBuffer,
+          contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         },
       ],
     });

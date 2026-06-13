@@ -1,92 +1,43 @@
-# Contexto y Rol del Asistente
-Actúa como un Ingeniero de Software Senior Full Stack experto en Next.js 14, TypeScript y Diseño UI/UX. Tu objetivo es diseñar e implementar un formulario dinámico de "Información General" para el llenado de secuencias académicas. Debes desarrollar la solución utilizando estrictamente el siguiente stack tecnológico basado en mis dependencias actuales:
+# Contexto y Rol
+Actúa como un Ingeniero de Software Senior experto en TypeScript, Next.js (App Router), y manipulación de archivos OpenXML. 
 
-* **Framework**: Next.js 14 (React 18 + TypeScript)
-* **Estilos y Componentes**: Tailwind CSS + Radix UI Select (`@radix-ui/react-select`)
-* **Manejo de Formularios**: `react-hook-form` con validación mediante `zod` y `@hookform/resolvers`
-* **Generación de Documentos (Backend/Server Actions/API Routes)**: Librería `docx` (Node.js)
-* **Envío de Correos**: `nodemailer` con soporte para archivos adjuntos
+## Objetivo Principal
+Debes **analizar, comprender y solucionar un error crítico** en nuestro sistema. El portal web permite a los usuarios ingresar datos en un formulario, procesa la información en el backend de Next.js, genera un documento Word (`.docx`) y lo envía automáticamente por correo electrónico usando Nodemailer. 
 
----
+**El problema:** El correo llega correctamente con el archivo adjunto, pero al intentar abrir el archivo `.docx` en Microsoft Word, aparece el siguiente error de corrupción: 
+*"Word encontró contenido no legible en [nombre_del_archivo].docx. ¿Desea recuperar el contenido de este documento? Si confía en el origen de este documento, haga clic en Sí."*
 
-# Requerimientos de Interfaz (UI) y Lógica Front-End
-
-## 1. Menús Desplegables Condicionales (`select` de Radix)
-Implementa tres selectores anidados controlados a través de `react-hook-form`. Las opciones deben estar tipadas estrictamente en TypeScript. Al cambiar la selección del nivel superior, se deben resetear y re-filtrar inmediatamente las opciones de los niveles inferiores de forma reactiva:
-
-### Nivel 1: Dirección de división
-Opciones base del primer menú:
-* Dirección de división Salud
-* Dirección de división de Medicina
-* Dirección de división Profesionales
-
-### Nivel 2: Dirección de carrera (Depende de Nivel 1)
-* **Si elige "Dirección de división Salud":**
-  * Dirección de la Licenciatura en Nutrición
-  * Dirección de la Licenciatura en Cirujano Odontólogo
-  * Dirección de Psicología
-  * Dirección Químico Farmacobiólogo
-  * Dirección de la Licenciatura en Enfermería
-* **Si elige "Dirección de división de Medicina":**
-  * Dirección de Medicina
-* **Si elige "Dirección de división Profesionales":**
-  * Dirección del Área de Ciencias en Negocios
-  * Dirección de Ingeniería
-  * Dirección de LEFyP
-  * Dirección del Área de Idiomas
-  * Dirección de Derecho
-
-### Nivel 3: Programa educativo (Depende de Nivel 2)
-* **Asociados a Dirección de división Salud:**
-  * *Dirección de la Licenciatura en Nutrición:* Licenciatura en Nutrición (Escolarizada)
-  * *Dirección de la Licenciatura en Cirujano Odontólogo:* Licenciatura en Cirujano odontólogo (Escolarizada)
-  * *Dirección de Psicología:* Licenciatura en Psicología clínica (Escolarizada) | Licenciatura en Psicología (Escolarizada) | Licenciatura en Psicología (Mixto)
-  * *Dirección Químico Farmacobiólogo:* Licenciatura en Químico farmacobiólogo (Escolarizada)
-  * *Dirección de la Licenciatura en Enfermería:* Licenciatura en Enfermería (Escolarizada) | Licenciatura en Enfermería (Mixto)
-* **Asociados a Dirección de división de Medicina:**
-  * *Dirección de Medicina:* Licenciatura en Médico cirujano (Escolarizada)
-* **Asociados a Dirección de división Profesionales:**
-  * *Dirección del Área de Ciencias en Negocios:* Licenciatura en Administración de empresas globales (Escolarizada) | Licenciatura en Contaduría pública (Escolarizada) | Licenciatura en Mercadotecnia y comunicación gráfica (Escolarizada) | Licenciatura en Administración de empresas (Mixto) | Licenciatura en Administración financiera y sistemas (Mixto) | Licenciatura en Contaduría pública (Mixto)
-  * *Dirección de Ingeniería:* Licenciatura en Arquitectura (Escolarizada) | Ingeniería en Animación y diseño de contenidos digitales (Escolarizada)
-  * *Dirección de LEFyP:* Licenciatura en Pedagogía (Escolarizada) | Licenciatura en Educación física y deportiva (Escolarizada) | Licenciatura en Educación física y deportiva (Mixto)
-  * *Dirección del Área de Idiomas:* Licenciatura en Inglés (Mixto)
-  * *Dirección de Derecho:* Licenciatura en Derecho (Escolarizada) | Licenciatura en Derecho (Mixto)
+## Stack Tecnológico Utilizado (Extraído del package.json)
+Para resolver este problema, debes basarte estrictamente en las siguientes versiones de nuestro proyecto:
+- **Framework:** Next.js `^14.2.30` (React `^18`)
+- **Librería de Word:** `docx` (versión `latest`)
+- **Envío de Correos:** `nodemailer` `^7.0.5` con tipos `@types/nodemailer` `^6.4.17`
+- **Validación/Formularios:** `zod` `^3.24.1` y `react-hook-form` `^7.54.1`
+- **Lenguaje:** TypeScript `^5` con `@types/node` `^22`
 
 ---
 
-# Requerimientos de Backend (API Routes / Server Actions)
+## Directrices Técnicas para la Solución
 
-## 2. Lógica del Botón "Guardar y Enviar Secuencia"
-Al hacer la petición `onSubmit` del formulario, el servidor de Next.js procesará los datos mediante las siguientes reglas obligatorias:
+Al analizar el código que te proporcionaré a continuación, debes buscar e implementar las siguientes correcciones obligatorias:
 
-### A. Eliminación de Descarga Local
-**Regla Estricta:** El endpoint del servidor ya no debe enviar cabeceras de descarga (`Content-Disposition: attachment`). La descarga en el navegador del cliente queda 100% deshabilitada. El flujo se procesa enteramente en memoria/servidor.
+1. **Manejo Correcto de Búferes (La causa más probable):**
+   - Asegúrate de que el documento de la librería `docx` se empaquete utilizando estrictamente `Packer.toBuffer(doc)`.
+   - Evita el uso de métodos como `Packer.toBlob()`, `Packer.toBase64String()` o conversiones erróneas a strings de texto que corrompen el archivo binario al pasar por el backend de Next.js.
+   - En la configuración del objeto `attachments` de Nodemailer, el campo `content` debe recibir directamente el buffer generado, y se debe explicitar el `contentType` oficial de Word: `application/vnd.openxmlformats-officedocument.wordprocessingml.document`.
 
-### B. Matriz de Enrutamiento de Correos (Nodemailer)
-Asocia mediante un mapeo estricto de TypeScript la opción elegida en **Dirección de carrera** con su respectivo correo electrónico institucional de destino para configurar el campo `to` en Nodemailer:
-* `direccion.nutricion@upgch.edu.mx` -> Dirección de la Licenciatura en Nutrición
-* `direccion.lco@upgch.edu.mx` -> Dirección de la Licenciatura en Cirujano Odontólogo
-* `direccion.psico@upgch.edu.mx` -> Dirección de Psicología
-* `director.qfb@upgch.edu.mx` -> Dirección Químico Farmacobiólogo
-* `direccion.enfria@upgch.edu.mx` -> Dirección de la Licenciatura en Enfermería
-* `direccion.lmc@upgch.edu.mx` -> Dirección de Medicina
-* `direccion.negocios@upgch.edu.mx` -> Dirección del Área de Ciencias en Negocios
-* `direccion.ingenierias@upgch.edu.mx` -> Dirección de Ingeniería
-* `direccion.educativas@upgch.edu.mx` -> Dirección de LEFyP
-* `direccion.idiomas@upgch.edu.mx` -> Dirección del Área de Idiomas
-* `direccion.derecho@upgch.edu.mx` -> Dirección de Derecho
+2. **Sanitización de Entradas contra Corrupción XML:**
+   - La librería `docx` inyecta texto directamente en archivos XML internos de Word. Si el usuario ingresa caracteres especiales como `&`, `<`, `>`, `"` o `'`, el XML se rompe inmediatamente y Word lo detecta como corrupto.
+   - Implementa una función utilitaria de escape (`escapeXml`) para limpiar de forma segura cualquier string proveniente del usuario antes de asignarlo a un objeto `TextRun` o propiedad de texto de la librería.
 
-### C. Generación de DOCX con Imagen de Membrete
-* Recibirás un archivo de imagen (PNG/JPG) denominado **Membrete Secuencia.png** que representa el membrete institucional. Este archivo ya se encuentra en la carpeta `public` del proyecto.
-* Usando la librería `docx`, genera el archivo de Word e integra la imagen del membrete de fondo en la sección de encabezado (`Header`) o mediante componentes gráficos de tamaño completo (`ImageRun` con ajuste absoluto o detrás del texto) para que abarque toda la hoja.
-* Dibuja los textos y datos recopilados del formulario de manera limpia sobre el espacio del documento.
-* Convierte el archivo DOCX resultante a un Buffer en memoria (`Packer.toBuffer`) y adjúntalo directamente al correo electrónico de Nodemailer (`attachments: [{ filename: 'secuencia.docx', content: buffer }]`).
+3. **Ciclo de Vida del Archivo y Respuestas HTTP:**
+   - Verifica que el flujo asíncrono (`async/await`) esté correctamente controlado para que el correo no se envíe con un buffer incompleto o vacío.
 
 ---
 
-# Entregables Solicitados
+## Tu Tarea
 
-1. **Esquema de Zod y Tipos de TS:** Definición de tipos estructurados y el objeto de validación Zod que enlace la jerarquía relacional.
-2. **Código del Componente Front-End:** El formulario React que maneje los tres componentes `<Select>` de Radix vinculados a `react-hook-form`, asegurando limpiar el estado de los hijos si cambia el padre.
-3. **Código de Backend (Next.js Endpoint):** Lógica completa que use la librería `docx` para insertar la imagen del membrete de fondo, empaquetar el buffer y enviarlo mediante la configuración de `nodemailer` al correo mapeado.
-4. **Propuesta UI/UX (Feedback de Carga):** Diseña un estado de carga interactivo para el botón (ej: deshabilitar el botón, mostrar un spinner o usar un componente `Toast` de Sonner/Radix) que informe al usuario: *"Guardando secuencia y enviando por correo electrónico... Por favor, espera."* y un mensaje de éxito claro, mitigando la confusión de que ya no se descargará el documento localmente.
+1. Lee detenidamente el código de mi API Route / Componente.
+2. Identifica dónde se está corrompiendo el archivo o dónde falta sanitizar los datos del usuario.
+3. Devuélveme el **código completamente corregido, optimizado, con tipado fuerte de TypeScript y listo para producción**.
+4. Explícame brevemente qué línea causaba el fallo.
