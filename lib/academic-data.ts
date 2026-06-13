@@ -17,7 +17,6 @@ export type Carrera =
   | "Dirección del Área de Ciencias en Negocios"
   | "Dirección de Ingeniería"
   | "Dirección de LEFyP"
-  | "Dirección del Área de Idiomas"
   | "Dirección de Derecho";
 
 export const DIVISION_CARRERAS: Record<Division, Carrera[]> = {
@@ -36,7 +35,6 @@ export const DIVISION_CARRERAS: Record<Division, Carrera[]> = {
     "Dirección del Área de Ciencias en Negocios",
     "Dirección de Ingeniería",
     "Dirección de LEFyP",
-    "Dirección del Área de Idiomas",
     "Dirección de Derecho",
   ],
 };
@@ -82,8 +80,6 @@ export const CARRERA_PROGRAMAS: Record<Carrera, string[]> = {
     "Licenciatura en Pedagogía (Escolarizada)",
     "Licenciatura en Educación física y deportiva (Escolarizada)",
     "Licenciatura en Educación física y deportiva (Mixto)",
-  ],
-  "Dirección del Área de Idiomas": [
     "Licenciatura en Inglés (Mixto)",
   ],
   "Dirección de Derecho": [
@@ -103,7 +99,6 @@ export const CARRERA_EMAILS: Record<Carrera, string> = {
   "Dirección del Área de Ciencias en Negocios": "direccion.negocios@upgch.edu.mx",
   "Dirección de Ingeniería": "direccion.ingenierias@upgch.edu.mx",
   "Dirección de LEFyP": "direccion.educativas@upgch.edu.mx",
-  "Dirección del Área de Idiomas": "direccion.idiomas@upgch.edu.mx",
   "Dirección de Derecho": "direccion.derecho@upgch.edu.mx",
 };
 

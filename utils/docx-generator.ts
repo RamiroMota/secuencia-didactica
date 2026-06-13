@@ -291,14 +291,16 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             new Paragraph({ children: [new TextRun({ text: "Tema principal:", bold: true })], spacing: { after: 100 } }),
             new Paragraph({ children: [new TextRun(escapeXml(unidad.tema) || "")], spacing: { after: 200 } }),
             new Paragraph({ children: [new TextRun({ text: "Subtemas:", bold: true })], spacing: { after: 100 } }),
-            new Paragraph({ children: [new TextRun({ text: "Objetivo:", bold: true })], spacing: { after: 100 } }),
-            new Paragraph({ children: [new TextRun(escapeXml(unidad.objetivo) || "")], spacing: { after: 200 } }),
 
-            ...unidad.subtemas.flatMap((s, i) => [
+          ...unidad.subtemas.flatMap((s, i) => [
               new Paragraph({ children: [new TextRun(`${i * 2 + 1}. ${escapeXml(s.subtema1) || ""}`)], spacing: { after: 50 } }),
               new Paragraph({ children: [new TextRun(`${i * 2 + 2}. ${escapeXml(s.subtema2) || ""}`)], spacing: { after: 100 } }),
             ]),
             new Paragraph({ spacing: { after: 200 } }),
+
+            new Paragraph({ children: [new TextRun({ text: "Objetivo:", bold: true })], spacing: { after: 100 } }),
+            new Paragraph({ children: [new TextRun(escapeXml(unidad.objetivo) || "")], spacing: { after: 200 } }),
+
             // Actividades - Texto independiente con tabla por actividad
             new Paragraph({ children: [new TextRun({ text: "ACTIVIDADES DE APRENDIZAJE", bold: true, size: SUBTITLE_SIZE })], spacing: { before: 100, after: 100 } }),
             ...unidad.actividades.flatMap((a, i) => [
