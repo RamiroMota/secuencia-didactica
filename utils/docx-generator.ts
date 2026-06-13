@@ -155,6 +155,9 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             font: FONT_FAMILY,
             size: BODY_SIZE,
           },
+          paragraph: {
+            alignment: AlignmentType.JUSTIFIED,
+          },
         },
       },
     },
@@ -224,11 +227,11 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             { label: "Horas", value: escapeXml(formData.horas) || "No especificado" },
           ]),
           new Paragraph({ spacing: { after: 200 } }),
-          new Paragraph({ children: [new TextRun({ text: "Aprendizajes:", bold: true })], spacing: { after: 100 } }),
+          new Paragraph({ children: [new TextRun({ text: "Aprendizajes Esperado:", bold: true })], spacing: { after: 100 } }),
           new Paragraph({ children: [new TextRun(escapeXml(formData.aprendizajes) || "No especificado")], spacing: { after: 200 } }),
-          new Paragraph({ children: [new TextRun({ text: "Impacto:", bold: true })], spacing: { after: 100 } }),
+          new Paragraph({ children: [new TextRun({ text: "Impacto en el perfil de egreso:", bold: true })], spacing: { after: 100 } }),
           new Paragraph({ children: [new TextRun(escapeXml(formData.impacto) || "No especificado")], spacing: { after: 200 } }),
-          new Paragraph({ children: [new TextRun({ text: "Competencia:", bold: true })], spacing: { after: 100 } }),
+          new Paragraph({ children: [new TextRun({ text: "Competencia sello:", bold: true })], spacing: { after: 100 } }),
           new Paragraph({ children: [new TextRun(escapeXml(formData.competencia) || "No especificado")], spacing: { after: 400 } }),
 
           // Module 4: Evaluation Criteria
@@ -287,9 +290,10 @@ export const generateDocx = async (formData: FormData): Promise<Document> => {
             new Paragraph({ children: [new TextRun({ text: `UNIDAD ${idx + 1}:`, bold: true, size: SUBTITLE_SIZE })], spacing: { before: 200, after: 100 } }),
             new Paragraph({ children: [new TextRun({ text: "Tema principal:", bold: true })], spacing: { after: 100 } }),
             new Paragraph({ children: [new TextRun(escapeXml(unidad.tema) || "")], spacing: { after: 200 } }),
+            new Paragraph({ children: [new TextRun({ text: "Subtemas:", bold: true })], spacing: { after: 100 } }),
             new Paragraph({ children: [new TextRun({ text: "Objetivo:", bold: true })], spacing: { after: 100 } }),
             new Paragraph({ children: [new TextRun(escapeXml(unidad.objetivo) || "")], spacing: { after: 200 } }),
-            new Paragraph({ children: [new TextRun({ text: "Subtemas:", bold: true })], spacing: { after: 100 } }),
+
             ...unidad.subtemas.flatMap((s, i) => [
               new Paragraph({ children: [new TextRun(`${i * 2 + 1}. ${escapeXml(s.subtema1) || ""}`)], spacing: { after: 50 } }),
               new Paragraph({ children: [new TextRun(`${i * 2 + 2}. ${escapeXml(s.subtema2) || ""}`)], spacing: { after: 100 } }),
