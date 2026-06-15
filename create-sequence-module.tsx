@@ -1534,7 +1534,7 @@ export default function CreateSequenceModule() {
               <CardDescription>
                 Los criterios de evaluación deben sumar 100%, considerando que
                 en correspondencia al modelo educativo el examen escrito debe de
-                valer maximo 40%
+                valer maximo 50%
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
