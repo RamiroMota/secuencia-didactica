@@ -88,18 +88,18 @@ export const CARRERA_PROGRAMAS: Record<Carrera, string[]> = {
   ],
 };
 
-export const CARRERA_EMAILS: Record<Carrera, string> = {
-  "Dirección de la Licenciatura en Nutrición": "direccion.nutricion@upgch.edu.mx",
-  "Dirección de la Licenciatura en PB": "indicadores.daa@upgch.edu.mx",
-  "Dirección de la Licenciatura en Cirujano Odontólogo": "direccion.lco@upgch.edu.mx",
-  "Dirección de Psicología": "direccion.psico@upgch.edu.mx",
-  "Dirección Químico Farmacobiólogo": "director.qfb@upgch.edu.mx",
-  "Dirección de la Licenciatura en Enfermería": "direccion.enfria@upgch.edu.mx",
-  "Dirección de Medicina": "direccion.lmc@upgch.edu.mx",
-  "Dirección del Área de Ciencias en Negocios": "direccion.negocios@upgch.edu.mx",
-  "Dirección de Ingeniería": "direccion.ingenierias@upgch.edu.mx",
-  "Dirección de LEFyP": "direccion.educativas@upgch.edu.mx",
-  "Dirección de Derecho": "direccion.derecho@upgch.edu.mx",
+export const CARRERA_EMAILS: Record<Carrera, string[]> = {
+  "Dirección de la Licenciatura en Nutrición": ["direccion.nutricion@upgch.edu.mx"],
+  "Dirección de la Licenciatura en PB": ["indicadores.daa@upgch.edu.mx"],
+  "Dirección de la Licenciatura en Cirujano Odontólogo": ["direccion.lco@upgch.edu.mx"],
+  "Dirección de Psicología": ["direccion.psico@upgch.edu.mx"],
+  "Dirección Químico Farmacobiólogo": ["director.qfb@upgch.edu.mx"],
+  "Dirección de la Licenciatura en Enfermería": ["direccion.enfria@upgch.edu.mx"],
+  "Dirección de Medicina": ["direccion.lmc@upgch.edu.mx", "coordacademicayadistancia.lmc@upgch.edu.mx"],
+  "Dirección del Área de Ciencias en Negocios": ["direccion.negocios@upgch.edu.mx"],
+  "Dirección de Ingeniería": ["direccion.ingenierias@upgch.edu.mx"],
+  "Dirección de LEFyP": ["direccion.educativas@upgch.edu.mx"],
+  "Dirección de Derecho": ["direccion.derecho@upgch.edu.mx"],
 };
 
 const UnidadSchema = z.object({

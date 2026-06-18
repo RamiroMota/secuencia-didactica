@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "La carrera es obligatoria para enrutar el correo" }, { status: 400 })
     }
 
-    const destinationEmail = CARRERA_EMAILS[carrera as Carrera]
-    if (!destinationEmail) {
+    const destinationEmails = CARRERA_EMAILS[carrera as Carrera]
+    if (!destinationEmails || destinationEmails.length === 0) {
       return NextResponse.json({ success: false, message: "No se encontró un correo registrado para la carrera seleccionada" }, { status: 400 })
     }
 
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     `
 
     await sendEmailWithGmail({
-      to: destinationEmail,
+      to: destinationEmails.join(","),
       subject: `Secuencia Didáctica sin validar para Revisión - ${asignatura}`,
       html: htmlContent,
       attachments: [

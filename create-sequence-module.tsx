@@ -259,6 +259,8 @@ export default function CreateSequenceModule() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showErrors, setShowErrors] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [loadingStatus, setLoadingStatus] = useState<"loading" | "success" | "error">("loading");
   const [qrNombreFirma, setQrNombreFirma] = useState<string>("");
   const [qrFirmaAcademia, setQrFirmaAcademia] = useState<string>("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -884,6 +886,8 @@ export default function CreateSequenceModule() {
 
     setShowErrors(false);
     setIsSubmitting(true);
+    setLoadingMessage("Generando documento DOCX y enviando por correo electrónico a tu director de carrera... Por favor, espera.");
+    setLoadingStatus("loading");
 
     // Generar QR con los datos completos
     const fechaEnvio = new Date().toLocaleDateString("es-MX", {
@@ -903,8 +907,6 @@ export default function CreateSequenceModule() {
 
     const qrGenerated = await generateQRCode(qrData);
 
-    const loadingToastId = toast.loading("Generando documento DOCX y enviando por correo electrónico a tu director de carrera... Por favor, espera.");
-
     try {
       const dataToSend = {
         ...formData,
@@ -922,19 +924,39 @@ export default function CreateSequenceModule() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success("¡Documento generado y enviado a tu director de carrera satisfactoriamente!", { id: loadingToastId });
+        setLoadingMessage("¡Documento generado y enviado a tu director de carrera satisfactoriamente!");
+        setLoadingStatus("success");
+        
+        fetch("/api/log-sequence", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            division: formData.division,
+            carrera: formData.carrera,
+            programa: formData.programa,
+            semestre: formData.semestre,
+            asignatura: formData.asignatura,
+            nombre: formData.nombre,
+          }),
+        }).catch(err => console.error("Error logging to sheets:", err));
+
         setSubmitSuccess(true);
         clearStorage();
-        setTimeout(() => setSubmitSuccess(false), 5000);
+        setTimeout(() => {
+          setSubmitSuccess(false);
+          setIsSubmitting(false);
+        }, 3000);
       } else {
         console.error("Error al enviar email:", result.message);
-        toast.error(`Error al enviar la secuencia: ${result.message || "Error desconocido"}`, { id: loadingToastId });
+        setLoadingMessage(`Error al enviar la secuencia: ${result.message || "Error desconocido"}`);
+        setLoadingStatus("error");
+        setTimeout(() => setIsSubmitting(false), 3000);
       }
     } catch (error) {
       console.error("Error al generar o enviar documento:", error);
-      toast.error("Ocurrió un error inesperado al generar el documento o enviar el correo.", { id: loadingToastId });
-    } finally {
-      setIsSubmitting(false);
+      setLoadingMessage("Ocurrió un error inesperado al generar el documento o enviar el correo.");
+      setLoadingStatus("error");
+      setTimeout(() => setIsSubmitting(false), 3000);
     }
   };
 
@@ -1168,7 +1190,7 @@ export default function CreateSequenceModule() {
           </Alert>
         )}
 
-        {isSubmitting && <LoadingModal />}
+        {isSubmitting && <LoadingModal message={loadingMessage} status={loadingStatus} />}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información General */}
           <Card className="shadow-2xl">

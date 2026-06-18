@@ -90,3 +90,11 @@ Instruccion.md
 test-*.docx
 test-*.ts
 extracted-*/
+
+# ============================================
+# Google API Credentials
+# ============================================
+client_secret_*.json
+*-*.json
+service-account.json
+credentials/*.json
