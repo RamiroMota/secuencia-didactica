@@ -68,6 +68,7 @@ export const CARRERA_PROGRAMAS: Record<Carrera, string[]> = {
     "Licenciatura en Administración de empresas globales (Escolarizada)",
     "Licenciatura en Contaduría pública (Escolarizada)",
     "Licenciatura en Mercadotecnia y comunicación gráfica (Escolarizada)",
+    "Licenciatura en Administración de empresas (Escolarizada)",
     "Licenciatura en Administración de empresas (Mixto)",
     "Licenciatura en Administración financiera y sistemas (Mixto)",
     "Licenciatura en Contaduría pública (Mixto)",
@@ -81,6 +82,9 @@ export const CARRERA_PROGRAMAS: Record<Carrera, string[]> = {
     "Licenciatura en Educación física y deportiva (Escolarizada)",
     "Licenciatura en Educación física y deportiva (Mixto)",
     "Licenciatura en Inglés (Mixto)",
+    "Licenciatura en Enseñanza del Inglés (Escolarizada)",
+    "Licenciatura en Ciencia de la Actividad Física y el Deporte (Escolarizada)",
+    "Licenciatura en Ciencia de la Actividad Física y el Deporte (Mixto)",    
   ],
   "Dirección de Derecho": [
     "Licenciatura en Derecho (Escolarizada)",
