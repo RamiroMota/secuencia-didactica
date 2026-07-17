@@ -8,7 +8,6 @@ export type Division =
 
 export type Carrera =
   | "Dirección de la Licenciatura en Nutrición"
-  | "Dirección de la Licenciatura en PB"
   | "Dirección de la Licenciatura en Cirujano Odontólogo"
   | "Dirección de Psicología"
   | "Dirección Químico Farmacobiólogo"
@@ -22,7 +21,6 @@ export type Carrera =
 export const DIVISION_CARRERAS: Record<Division, Carrera[]> = {
   "Dirección de división Salud": [
     "Dirección de la Licenciatura en Nutrición",
-    "Dirección de la Licenciatura en PB",
     "Dirección de la Licenciatura en Cirujano Odontólogo",
     "Dirección de Psicología",
     "Dirección Químico Farmacobiólogo",
@@ -42,9 +40,6 @@ export const DIVISION_CARRERAS: Record<Division, Carrera[]> = {
 export const CARRERA_PROGRAMAS: Record<Carrera, string[]> = {
   "Dirección de la Licenciatura en Nutrición": [
     "Licenciatura en Nutrición (Escolarizada)",
-  ],
-  "Dirección de la Licenciatura en PB": [
-    "Licenciatura en PB (Escolarizada)",
   ],
   "Dirección de la Licenciatura en Cirujano Odontólogo": [
     "Licenciatura en Cirujano odontólogo (Escolarizada)",
@@ -94,7 +89,6 @@ export const CARRERA_PROGRAMAS: Record<Carrera, string[]> = {
 
 export const CARRERA_EMAILS: Record<Carrera, string[]> = {
   "Dirección de la Licenciatura en Nutrición": ["direccion.nutricion@upgch.edu.mx"],
-  "Dirección de la Licenciatura en PB": ["indicadores.daa@upgch.edu.mx"],
   "Dirección de la Licenciatura en Cirujano Odontólogo": ["direccion.lco@upgch.edu.mx"],
   "Dirección de Psicología": ["direccion.psico@upgch.edu.mx"],
   "Dirección Químico Farmacobiólogo": ["director.qfb@upgch.edu.mx"],
