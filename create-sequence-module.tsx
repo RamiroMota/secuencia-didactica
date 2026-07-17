@@ -227,7 +227,7 @@ const programas = [
   "Licenciatura en Cirujano odontólogo (Escolarizada)",
 ];
 
-const ciclos = ["FJ-2626"];
+const ciclos = ["AE-2627"];
 
 const semestre = [
   "1er. Semestre",
