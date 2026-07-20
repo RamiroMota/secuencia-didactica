@@ -60,6 +60,14 @@ export const CARRERA_PROGRAMAS: Record<Carrera, string[]> = {
   "Dirección de la Licenciatura en Enfermería": [
     "Licenciatura en Enfermería (Escolarizada)",
     "Licenciatura en Enfermería (Mixto)",
+    "Maestría en administración en sistemas de salud",
+    "Maestría en administración en atención de Enfermería",
+    "Especialidad en Enfermería Pediátrica",
+    "Especialidad en Enfermería en Nefrología",
+    "Especialidad en Enfermería Quirúrgica",
+    "Especialidad en Enfermería en Urgencias",
+    "Especialidad en Enfermería geriátrica",
+    "Especialidad en Enfermería en Obstetricia",
   ],
   "Dirección de Medicina": [
     "Licenciatura en Médico cirujano (Escolarizada)",
