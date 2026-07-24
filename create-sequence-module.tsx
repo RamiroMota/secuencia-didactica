@@ -282,6 +282,7 @@ export default function CreateSequenceModule() {
     control,
     setValue,
     watch,
+    getValues,
     formState: { errors: hookErrors },
   } = useForm({
     resolver: zodResolver(generalInfoSchema),
@@ -889,6 +890,29 @@ export default function CreateSequenceModule() {
     setLoadingMessage("Generando documento DOCX y enviando por correo electrónico a tu director de carrera... Por favor, espera.");
     setLoadingStatus("loading");
 
+    // Ensure all react-hook-form values are synced to formData before submission
+    const currentValues = getValues();
+    setFormData((prev) => ({
+      ...prev,
+      division: currentValues.division || prev.division,
+      carrera: currentValues.carrera || prev.carrera,
+      programa: currentValues.programa || prev.programa,
+      ciclo: currentValues.ciclo || prev.ciclo,
+      titulo: currentValues.titulo || prev.titulo,
+      semestre: currentValues.semestre || prev.semestre,
+    }));
+
+    // Use current values from react-hook-form for dataToSend
+    const fullFormData = {
+      ...formData,
+      division: currentValues.division || formData.division,
+      carrera: currentValues.carrera || formData.carrera,
+      programa: currentValues.programa || formData.programa,
+      ciclo: currentValues.ciclo || formData.ciclo,
+      titulo: currentValues.titulo || formData.titulo,
+      semestre: currentValues.semestre || formData.semestre,
+    };
+
     // Generar QR con los datos completos
     const fechaEnvio = new Date().toLocaleDateString("es-MX", {
       year: "numeric",
@@ -899,9 +923,9 @@ export default function CreateSequenceModule() {
     });
 
     const qrData = [
-      `Docente: ${formData.nombre}`,
-      `Ciclo: ${formData.ciclo}`,
-      `Asignatura: ${formData.asignatura}`,
+      `Docente: ${fullFormData.nombre}`,
+      `Ciclo: ${fullFormData.ciclo}`,
+      `Asignatura: ${fullFormData.asignatura}`,
       `Fecha de envío: ${fechaEnvio}`,
     ].join("\n");
 
@@ -909,7 +933,7 @@ export default function CreateSequenceModule() {
 
     try {
       const dataToSend = {
-        ...formData,
+        ...fullFormData,
         qr_nombre_firma: qrGenerated,
       };
 

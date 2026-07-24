@@ -139,13 +139,50 @@ const PAGE_HEIGHT = 1121; // 11 pulgadas * 72 pt
 export const generateDocx = async (formData: FormData): Promise<Document> => {
   const usarCriteriosBimestre = shouldUseCriteriosBimestre(formData)
 
+  console.log("=== DOCX Generator ===")
+  console.log("formData keys:", Object.keys(formData))
+  console.log("division:", formData.division)
+  console.log("carrera:", formData.carrera)
+  console.log("nombre:", formData.nombre)
+  console.log("asignatura:", formData.asignatura)
+  console.log("unidades count:", formData.unidades?.length)
+
   let imageBuffer: Buffer | null = null;
   try {
+    // First try to read from filesystem (works in development)
     const imgPath = path.join(process.cwd(), "public", "Membrete Secuencia.png");
-    imageBuffer = fs.readFileSync(imgPath);
+    console.log("Image path:", imgPath)
+    if (fs.existsSync(imgPath)) {
+      imageBuffer = fs.readFileSync(imgPath);
+      console.log("Image loaded from filesystem, size:", imageBuffer.length)
+    } else {
+      console.log("Image file not found at:", imgPath)
+    }
   } catch (err) {
-    console.error("Error reading letterhead image:", err);
+    console.error("Error reading letterhead from filesystem:", err);
   }
+
+  // If no image from filesystem, try fetching from public URL (works in production)
+  if (!imageBuffer) {
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+      const imageUrl = `${siteUrl}/Membrete%20Secuencia.png`
+      console.log("Trying to fetch image from URL:", imageUrl)
+      const response = await fetch(imageUrl);
+      if (response.ok) {
+        const arrayBuffer = await response.arrayBuffer();
+        imageBuffer = Buffer.from(arrayBuffer);
+        console.log("Image fetched from URL, size:", imageBuffer.length)
+      } else {
+        console.log("Failed to fetch image, status:", response.status)
+      }
+    } catch (err) {
+      console.error("Error fetching letterhead from URL:", err);
+    }
+  }
+
+  console.log("Final imageBuffer:", imageBuffer ? `present (${imageBuffer.length} bytes)` : "null")
+  console.log("=== End DOCX Generator ===")
 
   const doc = new Document({
     styles: {

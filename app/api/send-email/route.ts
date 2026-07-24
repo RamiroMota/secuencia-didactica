@@ -8,6 +8,33 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
+    console.log("=== API send-email received body ===")
+    console.log("Keys:", Object.keys(body))
+    console.log("division:", body.division)
+    console.log("carrera:", body.carrera)
+    console.log("programa:", body.programa)
+    console.log("ciclo:", body.ciclo)
+    console.log("titulo:", body.titulo)
+    console.log("semestre:", body.semestre)
+    console.log("nombre:", body.nombre)
+    console.log("perfil:", body.perfil)
+    console.log("posgrado:", body.posgrado)
+    console.log("asignatura:", body.asignatura)
+    console.log("horas:", body.horas)
+    console.log("aprendizajes:", body.aprendizajes?.substring(0, 50))
+    console.log("impacto:", body.impacto?.substring(0, 50))
+    console.log("competencia:", body.competencia?.substring(0, 50))
+    console.log("contextualizacion:", body.contextualizacion?.substring(0, 50))
+    console.log("criterios:", JSON.stringify(body.criterios)?.substring(0, 100))
+    console.log("criterios_bimestre:", JSON.stringify(body.criterios_bimestre)?.substring(0, 100))
+    console.log("unidades count:", body.unidades?.length)
+    console.log("actividades_finales:", JSON.stringify(body.actividades_finales)?.substring(0, 100))
+    console.log("nombre_firma:", body.nombre_firma)
+    console.log("correo_institucional:", body.correo_institucional)
+    console.log("firma_academia:", body.firma_academia)
+    console.log("qr_nombre_firma:", body.qr_nombre_firma ? "present" : "missing")
+    console.log("=== End body debug ===")
+
     const {
       carrera,
       correo_institucional,
